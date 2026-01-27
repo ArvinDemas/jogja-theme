@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Akun - Portal Pemda DIY</title>
+    <link rel="stylesheet" href="${url.resourcesPath}/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="visual-section">
+            <div class="particle"></div><div class="particle"></div>
+            <div class="brand-wrapper">
+                <div class="logo-box">
+                    <img src="https://jogjaprov.go.id/storage/files/shares/page/1518066730_2d84b769e3cc9d6f06f8c91a6c3e285c.jpg" alt="Logo DIY">
+                </div>
+                <div class="brand-text"><h1>PEMDA DIY</h1><p>YOGYAKARTA</p></div>
+            </div>
+            <div class="carousel-container">
+                <div class="carousel-slide active">
+                    <span class="slide-tag">Transformasi Digital</span>
+                    <h2 class="slide-title">Yogyakarta Istimewa</h2>
+                    <p class="slide-desc">Mengintegrasikan teknologi informasi dalam tata kelola pemerintahan.</p>
+                </div>
+                <div class="carousel-progress"><div class="progress-bar"></div></div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="blob blob-1"></div><div class="blob blob-2"></div>
+            
+            <div class="login-card">
+                <div class="form-header">
+                    <h2>Buat Akun Baru</h2>
+                    <p>Lengkapi data diri untuk bergabung.</p>
+                </div>
+
+                <form action="${url.registrationAction}" method="post">
+                    
+                    <#if message?has_content>
+                        <div style="background: #fef2f2; border-left: 4px solid #ef4444; color: #b91c1c; padding: 12px; font-size: 0.85rem; margin-bottom: 20px; border-radius: 8px;">
+                            ${kcSanitize(message.summary)?no_esc}
+                        </div>
+                    </#if>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Nama Depan</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="firstName" name="firstName" class="form-input" placeholder="Budi" value="${(register.formData.firstName!'')}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nama Belakang</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="lastName" name="lastName" class="form-input" placeholder="Santoso" value="${(register.formData.lastName!'')}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email Aktif</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="email" name="email" class="form-input" placeholder="nama@email.com" value="${(register.formData.email!'')}">
+                            <i class="ph ph-envelope input-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="username" name="username" class="form-input" placeholder="budi_santoso" value="${(register.formData.username!'')}">
+                            <i class="ph ph-user input-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Buat Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" name="password" class="form-input" placeholder="Minimal 8 karakter">
+                            <i class="ph ph-lock input-icon"></i>
+                            <i class="ph ph-eye password-toggle" onclick="togglePassword('password')"></i>
+                        </div>
+                        <div class="password-requirements">
+                            <div class="req-title">Keamanan Password:</div>
+                            <ul class="req-list">
+                                <li id="rule-length" class="req-item"><i class="ph ph-circle"></i> Min 8 Karakter</li>
+                                <li id="rule-upper" class="req-item"><i class="ph ph-circle"></i> Huruf Besar</li>
+                                <li id="rule-number" class="req-item"><i class="ph ph-circle"></i> Angka</li>
+                                <li id="rule-symbol" class="req-item"><i class="ph ph-circle"></i> Simbol (!@#)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Konfirmasi Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password-confirm" name="password-confirm" class="form-input" placeholder="Ulangi password">
+                            <i class="ph ph-lock input-icon"></i>
+                            <i class="ph ph-eye password-toggle" onclick="togglePassword('password-confirm')"></i>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="main-btn">Daftar Sekarang</button>
+                </form>
+
+                <div class="bottom-text">Sudah punya akun? <a href="${url.loginUrl}">Masuk Disini</a></div>
+            </div>
+        </div>
+    </div>
+    <script src="${url.resourcesPath}/js/script.js"></script>
+</body>
+</html>
