@@ -1,4 +1,4 @@
-/* --- 1. IMPORT FONTS (Playfair + Inter) --- */
+/* --- 1. IMPORT FONTS --- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap');
 
 /* --- 2. GLOBAL RESET --- */
@@ -24,12 +24,10 @@ h1, h2, h3, .brand-text h1, .slide-title {
     background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     position: relative; overflow: hidden;
     display: flex; flex-direction: column;
-    /* Justify content diubah agar carousel pas di tengah karena footer dihapus */
-    justify-content: center; 
+    justify-content: center;
     padding: 60px; color: white;
 }
 
-/* Background Animation */
 .visual-section::before {
     content: ''; position: absolute; inset: -50%;
     background: radial-gradient(circle at 20% 50%, rgba(56, 189, 248, 0.2) 0%, transparent 50%),
@@ -44,11 +42,7 @@ h1, h2, h3, .brand-text h1, .slide-title {
 .particle:nth-child(2) { width: 180px; height: 180px; top: 50%; left: 70%; animation-delay: 2s; background: linear-gradient(135deg, #a78bfa, #8b5cf6); }
 @keyframes megaFloat { 0%, 100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(-40px); opacity: 0.8; } }
 
-/* Brand Positioned Absolute at Top Left */
-.brand-wrapper { 
-    position: absolute; top: 50px; left: 60px; 
-    display: flex; align-items: center; gap: 15px; z-index: 2; 
-}
+.brand-wrapper { position: absolute; top: 50px; left: 60px; display: flex; align-items: center; gap: 15px; z-index: 2; }
 .logo-box {
     width: 65px; height: 65px;
     background: white; border-radius: 12px; padding: 5px;
@@ -59,7 +53,7 @@ h1, h2, h3, .brand-text h1, .slide-title {
 .brand-text h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 0; line-height: 1; }
 .brand-text p { font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; margin-top: 5px; }
 
-/* Carousel */
+/* Carousel & Progress */
 .carousel-container { position: relative; z-index: 2; max-width: 600px; }
 .carousel-slide { display: none; animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
 .carousel-slide.active { display: block; }
@@ -75,28 +69,11 @@ h1, h2, h3, .brand-text h1, .slide-title {
 .slide-title { font-size: 3.5rem; font-weight: 700; line-height: 1.1; margin-bottom: 20px; color: #f8fafc; }
 .slide-desc { font-size: 1.1rem; line-height: 1.7; opacity: 0.85; font-weight: 300; max-width: 90%; }
 
-/* --- PROGRESS BAR CAROUSEL (NEW) --- */
-.carousel-progress {
-    width: 100%;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.1); /* Track */
-    border-radius: 2px;
-    margin-top: 40px;
-    overflow: hidden;
-}
-.progress-bar {
-    height: 100%;
-    background: #38bdf8; /* Biru terang */
-    width: 0%;
-    border-radius: 2px;
-}
+.carousel-progress { width: 100%; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; margin-top: 40px; overflow: hidden; }
+.progress-bar { height: 100%; background: #38bdf8; width: 0%; border-radius: 2px; }
 
 /* --- 4. FORM SECTION (KANAN) --- */
-.form-section {
-    flex: 1; background: #ffffff;
-    display: flex; align-items: center; justify-content: center;
-    position: relative; padding: 40px;
-}
+.form-section { flex: 1; background: #ffffff; display: flex; align-items: center; justify-content: center; position: relative; padding: 40px; }
 
 .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; animation: blobMove 20s infinite; pointer-events: none; }
 .blob-1 { width: 300px; height: 300px; background: #e0f2fe; top: -50px; right: -50px; }
@@ -104,9 +81,9 @@ h1, h2, h3, .brand-text h1, .slide-title {
 @keyframes blobMove { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(20px, -20px); } }
 
 .login-card {
-    width: 100%; max-width: 460px; /* Sedikit dilebarkan buat form register */
+    width: 100%; max-width: 460px;
     background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+    backdrop-filter: blur(25px);
     border-radius: 24px; padding: 45px;
     box-shadow: 0 20px 50px rgba(15, 23, 42, 0.1);
     border: 1px solid rgba(255,255,255,0.5);
@@ -115,20 +92,26 @@ h1, h2, h3, .brand-text h1, .slide-title {
 }
 .login-card::-webkit-scrollbar { display: none; }
 
-.form-header { margin-bottom: 30px; text-align: center; }
-.form-header h2 { font-size: 2.2rem; font-weight: 700; color: #0f172a; margin-bottom: 10px; }
-.form-header p { color: #64748b; font-size: 1rem; line-height: 1.5; }
+.login-header { margin-bottom: 30px; text-align: center; }
+.login-header h2 { font-size: 2.2rem; font-weight: 700; color: #0f172a; margin-bottom: 10px; }
+.login-header p { color: #64748b; font-size: 1rem; line-height: 1.5; }
 
-.auth-tabs { display: flex; background: #f1f5f9; padding: 5px; border-radius: 12px; margin-bottom: 30px; }
-.tab-btn { 
-    flex: 1; padding: 12px; border: none; background: transparent; 
-    border-radius: 10px; font-weight: 600; color: #64748b; 
-    cursor: pointer; transition: 0.3s; font-family: 'Inter', sans-serif; 
-}
+/* Tabs */
+.auth-tabs { display: flex; background: #f1f5f9; padding: 5px; border-radius: 12px; margin-bottom: 25px; }
+.tab-btn { flex: 1; padding: 12px; border: none; background: transparent; border-radius: 10px; font-weight: 600; color: #64748b; cursor: pointer; transition: 0.3s; font-family: 'Inter', sans-serif; }
 .tab-btn.active { background: white; color: #0f172a; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
+/* Alert Messages (Keycloak Error) */
+.alert {
+    padding: 12px; margin-bottom: 20px; border-radius: 10px; font-size: 0.9rem; font-weight: 500;
+    display: flex; align-items: center; gap: 10px;
+}
+.alert-error { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
+.alert-warning { background: #fffbeb; color: #f59e0b; border: 1px solid #fef3c7; }
+.alert-success { background: #f0fdf4; color: #10b981; border: 1px solid #dcfce7; }
+
+/* Inputs */
 .form-group { margin-bottom: 20px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; } /* Untuk Nama Depan/Belakang */
 .form-label { display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 8px; }
 .input-wrapper { position: relative; }
 .form-input {
@@ -142,6 +125,7 @@ h1, h2, h3, .brand-text h1, .slide-title {
 .form-input:focus + .input-icon { color: #0ea5e9; }
 .password-toggle { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; cursor: pointer; font-size: 1.2rem; }
 
+/* Buttons */
 .main-btn {
     width: 100%; padding: 16px;
     background: #0f172a; color: white;
@@ -157,27 +141,28 @@ h1, h2, h3, .brand-text h1, .slide-title {
 .bottom-text { text-align: center; margin-top: 25px; color: #64748b; font-size: 0.9rem; }
 .bottom-text a { color: #0f172a; font-weight: 700; text-decoration: none; border-bottom: 1px solid #0f172a; }
 
-.qr-section { text-align: center; background: #ffffff; padding: 25px; border-radius: 20px; border: 1px solid #e2e8f0; }
-.qr-container { 
-    width: 180px; height: 180px; margin: 0 auto 20px; 
-    background: white; padding: 10px; border-radius: 15px; 
-    border: 2px dashed #0ea5e9; 
-    display: flex; align-items: center; justify-content: center; position: relative; 
+/* Social Login */
+.social-divider { margin: 25px 0 20px; text-align: center; position: relative; }
+.social-divider::before { content: ""; position: absolute; left: 0; top: 50%; width: 100%; height: 1px; background: #e2e8f0; z-index: 1; }
+.social-divider span { background: #fff; padding: 0 15px; position: relative; z-index: 2; color: #64748b; font-size: 0.85rem; font-weight: 500; }
+
+.social-login-grid { display: flex; flex-direction: column; gap: 12px; }
+.social-btn {
+    width: 100%; padding: 12px 20px; border: 1px solid #cbd5e1; border-radius: 12px; background: white;
+    color: #334155; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; justify-content: center;
+    gap: 12px; text-decoration: none; transition: all 0.3s ease; font-family: 'Inter', sans-serif;
 }
+.social-btn:hover { background: #f8fafc; border-color: #0ea5e9; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
+
+/* QR Section */
+.qr-section { text-align: center; background: #ffffff; padding: 25px; border-radius: 20px; border: 1px solid #e2e8f0; }
+.qr-container { width: 180px; height: 180px; margin: 0 auto 20px; background: white; padding: 10px; border-radius: 15px; border: 2px dashed #0ea5e9; display: flex; align-items: center; justify-content: center; position: relative; }
 .scan-line { position: absolute; width: 100%; height: 2px; background: #ef4444; top: 0; animation: scanAnim 2s infinite linear; }
 @keyframes scanAnim { 0% { top: 10%; opacity: 0; } 50% { opacity: 1; } 100% { top: 90%; opacity: 0; } }
 
 .qr-instructions { text-align: left; background: #f0f9ff; padding: 15px; border-radius: 10px; border-left: 4px solid #0ea5e9; }
 .qr-instructions h4 { font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 700; color: #0f172a; margin-bottom: 5px; }
 .qr-instructions p { font-size: 0.85rem; color: #334155; line-height: 1.5; margin: 0; }
-
-.password-requirements { margin-top: 15px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; }
-.req-title { font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-.req-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.req-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #94a3b8; font-weight: 500; transition: all 0.3s ease;}
-.req-item i { font-size: 16px; }
-.req-item.valid { color: #10b981; font-weight: 600; }
-.req-item.valid i { color: #10b981; }
 
 @media (max-width: 900px) {
     .visual-section { display: none; }

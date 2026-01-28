@@ -1,22 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. CAROUSEL DENGAN PROGRESS BAR ---
+    // --- 1. CAROUSEL & PROGRESS BAR ---
     const slides = document.querySelectorAll('.carousel-slide');
     const progressBar = document.querySelector('.progress-bar');
     
     if (slides.length > 0 && progressBar) {
         let currentSlide = 0;
-        const slideDuration = 5000; // 5 Detik
+        const slideDuration = 5000;
 
         function startProgress() {
-            // Reset dulu ke 0
             progressBar.style.transition = 'none';
             progressBar.style.width = '0%';
-            
-            // Force Reflow agar animasi ulang
-            void progressBar.offsetWidth;
-
-            // Animate ke 100%
+            void progressBar.offsetWidth; // Force Reflow
             progressBar.style.transition = `width ${slideDuration}ms linear`;
             progressBar.style.width = '100%';
         }
@@ -25,16 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
             slides[currentSlide].classList.remove('active');
             currentSlide = (currentSlide + 1) % slides.length;
             slides[currentSlide].classList.add('active');
-            startProgress(); // Restart bar setiap ganti slide
+            startProgress();
         }
 
-        // Mulai animasi pertama kali
         startProgress();
-        // Set interval ganti slide
         setInterval(showNextSlide, slideDuration);
     }
 
-    // --- 2. TAB LOGIN ---
+    // --- 2. TAB LOGIN (Kredensial / QR) ---
     const tabPass = document.getElementById('tab-pass');
     const tabQr = document.getElementById('tab-qr');
     const formPass = document.getElementById('form-credential');
@@ -56,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. PASSWORD VISIBILITY ---
+    // --- 3. PASSWORD TOGGLE (Mata Show/Hide) ---
     window.togglePassword = function(id) {
         const input = document.getElementById(id);
         const icon = document.querySelector(`[onclick="togglePassword('${id}')"]`);
@@ -71,27 +64,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 4. VALIDASI PASSWORD REGISTER ---
+    // --- 4. PASSWORD VALIDATION CHECKLIST (Register) ---
     const regPass = document.getElementById('reg-pass');
+    
     if (regPass) {
         regPass.addEventListener('keyup', function() {
             const val = this.value;
+            // Validasi 4 Aturan
             updateRule('rule-length', val.length >= 8);
             updateRule('rule-upper', /[A-Z]/.test(val));
             updateRule('rule-number', /[0-9]/.test(val));
-            updateRule('rule-symbol', /[!@#$%^&*]/.test(val));
+            updateRule('rule-symbol', /[!@#$%^&*(),.?":{}|<>]/.test(val));
         });
     }
 
-    function updateRule(id, valid) {
+    function updateRule(id, isValid) {
         const el = document.getElementById(id);
         const icon = el.querySelector('i');
-        if (valid) {
+        
+        if (isValid) {
             el.classList.add('valid');
+            // Ganti icon jadi centang penuh
             icon.classList.replace('ph-circle', 'ph-check-circle');
             icon.setAttribute('weight', 'fill');
         } else {
             el.classList.remove('valid');
+            // Ganti icon jadi lingkaran kosong
             icon.classList.replace('ph-check-circle', 'ph-circle');
             icon.setAttribute('weight', 'regular');
         }
