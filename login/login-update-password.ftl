@@ -1,9 +1,10 @@
+<#import "template.ftl" as layout>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Password - Portal Pemda DIY</title>
+    <title>Buat Password Baru - Portal Pemda DIY</title>
     <link href="${url.resourcesPath}/css/style.css" rel="stylesheet" />
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
@@ -13,48 +14,17 @@
         <#-- VISUAL SECTION (KIRI) -->
         <div class="visual-section">
             <div class="particle"></div><div class="particle"></div>
-            
             <div class="brand-wrapper">
                 <div class="logo-box">
                     <img src="https://jogjaprov.go.id/storage/files/shares/page/1518066730_2d84b769e3cc9d6f06f8c91a6c3e285c.jpg" alt="Logo DIY">
                 </div>
                 <div class="brand-text"><h1>PEMDA DIY</h1><p>YOGYAKARTA</p></div>
             </div>
-
-            <div class="carousel-container">
-                <div class="security-tips-section">
-                    <h2 class="tips-main-title">Perbarui Password<br/>Anda</h2>
-                    <div class="tips-badge">Keamanan Akun</div>
-                    
-                    <div class="tips-list">
-                        <div class="tip-item">
-                            <div class="tip-icon">
-                                <i class="ph ph-clock-clockwise" weight="fill"></i>
-                            </div>
-                            <p>Perbarui password Anda secara berkala untuk menjaga keamanan akun</p>
-                        </div>
-                        
-                        <div class="tip-item">
-                            <div class="tip-icon">
-                                <i class="ph ph-shield-star" weight="fill"></i>
-                            </div>
-                            <p>Gunakan password yang unik dan berbeda dari password lama Anda</p>
-                        </div>
-                        
-                        <div class="tip-item">
-                            <div class="tip-icon">
-                                <i class="ph ph-lock-key" weight="fill"></i>
-                            </div>
-                            <p>Password yang kuat melindungi data dan informasi penting Anda</p>
-                        </div>
-                        
-                        <div class="tip-item">
-                            <div class="tip-icon">
-                                <i class="ph ph-user-check" weight="fill"></i>
-                            </div>
-                            <p>Setelah update, Anda akan tetap login di perangkat ini</p>
-                        </div>
-                    </div>
+            <div class="carousel-container" style="margin-top: 120px;">
+                <div class="carousel-slide active">
+                    <span class="slide-tag">Keamanan Akun</span>
+                    <h2 class="slide-title">Buat Password Baru</h2>
+                    <p class="slide-desc">Pilih password yang kuat untuk melindungi akun Anda.</p>
                 </div>
             </div>
         </div>
@@ -62,14 +32,19 @@
         <#-- FORM SECTION (KANAN) -->
         <div class="form-section">
             <div class="blob blob-1"></div><div class="blob blob-2"></div>
-            
+
             <div class="login-card fade-in">
                 <div class="login-header">
-                    <h2>Update Password</h2>
-                    <p>Masukkan password lama dan buat password baru</p>
+                    <h2>Buat Password Baru</h2>
+                    <p>
+                        <#if username??>
+                            Password baru untuk: <strong>${username}</strong>
+                        <#else>
+                            Masukkan password baru Anda
+                        </#if>
+                    </p>
                 </div>
 
-                <#-- Alert Error/Success -->
                 <#if message?has_content && (message.type != 'warning')>
                     <div class="alert alert-${message.type}">
                         <#if message.type = 'error'><i class="ph ph-x-circle"></i></#if>
@@ -78,31 +53,26 @@
                     </div>
                 </#if>
 
-                <form action="${url.loginAction}" method="post" autocomplete="off" id="update-pass-form">
+                <form action="${url.loginAction}" method="post" id="update-password-form" autocomplete="off">
                     
-                    <#-- PASSWORD LAMA -->
-                    <div class="form-group">
-                        <label class="form-label">Password Lama</label>
-                        <div class="input-wrapper">
-                            <input type="password" name="password" id="password-old" class="form-input" placeholder="Masukkan password lama" autocomplete="current-password" required autofocus />
-                            <i class="ph ph-lock-open input-icon"></i>
-                            <i class="ph ph-eye password-toggle" onclick="togglePassword('password-old')"></i>
-                        </div>
-                    </div>
-
-                    <div class="divider-line"></div>
-
-                    <#-- PASSWORD BARU -->
+                    <#-- NEW PASSWORD -->
                     <div class="form-group">
                         <label class="form-label">Password Baru</label>
                         <div class="input-wrapper">
-                            <input type="password" name="password-new" id="password-new" class="form-input" placeholder="Minimal 8 karakter" autocomplete="new-password" required />
+                            <input type="password" 
+                                   id="password-new" 
+                                   name="password-new" 
+                                   class="form-input" 
+                                   placeholder="Minimal 8 karakter"
+                                   required
+                                   autofocus
+                                   autocomplete="new-password" />
                             <i class="ph ph-lock input-icon"></i>
                             <i class="ph ph-eye password-toggle" onclick="togglePassword('password-new')"></i>
                         </div>
                     </div>
 
-                    <#-- INDIKATOR KEKUATAN PASSWORD -->
+                    <#-- PASSWORD STRENGTH INDICATOR -->
                     <div class="password-strength">
                         <div class="strength-title">Keamanan Password:</div>
                         <div class="strength-indicators">
@@ -125,11 +95,17 @@
                         </div>
                     </div>
 
-                    <#-- KONFIRMASI PASSWORD -->
+                    <#-- CONFIRM PASSWORD -->
                     <div class="form-group">
                         <label class="form-label">Konfirmasi Password Baru</label>
                         <div class="input-wrapper">
-                            <input type="password" name="password-confirm" id="password-confirm" class="form-input" placeholder="Ulangi password baru" autocomplete="new-password" required />
+                            <input type="password" 
+                                   id="password-confirm" 
+                                   name="password-confirm" 
+                                   class="form-input" 
+                                   placeholder="Ulangi password"
+                                   required
+                                   autocomplete="new-password" />
                             <i class="ph ph-lock input-icon"></i>
                             <i class="ph ph-eye password-toggle" onclick="togglePassword('password-confirm')"></i>
                         </div>
@@ -139,32 +115,44 @@
                         </div>
                     </div>
 
-                    <#-- LOGOUT ALL SESSIONS -->
-                    <div class="form-group">
-                        <div class="logout-sessions-checkbox">
-                            <input type="checkbox" id="logout-sessions" name="logout-sessions" value="on" />
-                            <label for="logout-sessions">
-                                <i class="ph ph-sign-out"></i>
-                                Logout dari semua perangkat lain setelah update password
-                            </label>
-                        </div>
+                    <#-- INFO BOX -->
+                    <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 10px; margin: 20px 0;">
+                        <p style="font-size: 0.85rem; color: #92400e; line-height: 1.6; margin: 0;">
+                            <strong>⚠️ Penting:</strong> Setelah password diubah, Anda akan diminta login kembali 
+                            dengan password baru. Pastikan Anda mengingatnya atau simpan di password manager.
+                        </p>
                     </div>
 
                     <button type="submit" class="main-btn" id="submit-btn" disabled>
                         <i class="ph ph-check-circle"></i>
-                        <span>Update Password</span>
+                        Simpan Password Baru
                     </button>
                 </form>
 
-                <div class="bottom-text">
-                    <a href="${url.loginRestartFlowUrl}">
-                        <i class="ph ph-arrow-left"></i>
-                        Batalkan
+                <#-- PASSWORD TIPS -->
+                <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                    <h4 style="font-size: 0.9rem; font-weight: 700; color: #0f172a; margin-bottom: 12px;">
+                        Tips Password Aman
+                    </h4>
+                    <ul style="margin-left: 20px; color: #475569; line-height: 1.8; font-size: 0.85rem;">
+                        <li><strong>Jangan</strong> gunakan password yang sama dengan akun lain</li>
+                        <li><strong>Jangan</strong> gunakan informasi pribadi (nama, tanggal lahir)</li>
+                        <li><strong>Gunakan</strong> kombinasi huruf besar, kecil, angka, dan simbol</li>
+                        <li><strong>Gunakan</strong> password manager untuk menyimpan password</li>
+                        <li><strong>Aktifkan</strong> 2FA untuk keamanan tambahan</li>
+                    </ul>
+                </div>
+
+                <#-- CANCEL OPTION -->
+                <div class="bottom-text" style="margin-top: 20px;">
+                    <a href="${url.loginUrl}" style="color: #64748b; text-decoration: none; font-size: 0.85rem;">
+                        <i class="ph ph-x"></i>
+                        Batalkan & Kembali ke Login
                     </a>
                 </div>
 
                 <#-- FOOTER LINKS -->
-                <div class="footer-links">
+                <div class="footer-links" style="margin-top: 25px;">
                     <a href="https://wiki.jogjaprov.go.id/diskominfo/panduan/panduan-2fa" target="_blank" class="footer-link">
                         <i class="ph ph-shield-check"></i>
                         <span>Panduan SSO/2FA</span>
@@ -186,135 +174,165 @@
         </div>
     </div>
     
-    <script src="${url.resourcesPath}/js/script.js"></script>
     <script>
-        // Password validation logic (same as reset password)
-        const passNew = document.getElementById('password-new');
-        const passConfirm = document.getElementById('password-confirm');
-        const matchIndicator = document.getElementById('match-indicator');
-        const passwordStrength = document.querySelector('.password-strength');
-        const submitBtn = document.getElementById('submit-btn');
-        
-        let passwordRules = {
-            length: false,
-            upper: false,
-            number: false,
-            symbol: false
-        };
-
-        if (passNew) {
-            passNew.value = '';
+        // Password validation and matching
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password-new');
+            const confirmInput = document.getElementById('password-confirm');
+            const matchIndicator = document.getElementById('match-indicator');
+            const submitBtn = document.getElementById('submit-btn');
+            const passwordStrength = document.querySelector('.password-strength');
             
-            passNew.addEventListener('input', function() {
-                const val = this.value;
-                
-                passwordRules.length = val.length >= 8;
-                passwordRules.upper = /[A-Z]/.test(val);
-                passwordRules.number = /[0-9]/.test(val);
-                passwordRules.symbol = /[!@#$%^&*(),.?":{}|<>]/.test(val);
-                
-                updateRule('rule-length', passwordRules.length);
-                updateRule('rule-upper', passwordRules.upper);
-                updateRule('rule-number', passwordRules.number);
-                updateRule('rule-symbol', passwordRules.symbol);
-                
-                const allValid = Object.values(passwordRules).every(rule => rule === true);
-                
-                if (val.length > 0) {
-                    if (allValid) {
-                        passNew.classList.remove('invalid');
-                        passNew.classList.add('valid');
-                        passwordStrength.classList.remove('has-errors');
+            let passwordRules = {
+                length: false,
+                upper: false,
+                number: false,
+                symbol: false
+            };
+            
+            // Clear default values
+            if (passwordInput) passwordInput.value = '';
+            if (confirmInput) confirmInput.value = '';
+            
+            // Password validation
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    const val = this.value;
+                    
+                    // Check rules
+                    passwordRules.length = val.length >= 8;
+                    passwordRules.upper = /[A-Z]/.test(val);
+                    passwordRules.number = /[0-9]/.test(val);
+                    passwordRules.symbol = /[!@#$%^&*(),.?":{}|<>]/.test(val);
+                    
+                    // Update UI
+                    updateRule('rule-length', passwordRules.length);
+                    updateRule('rule-upper', passwordRules.upper);
+                    updateRule('rule-number', passwordRules.number);
+                    updateRule('rule-symbol', passwordRules.symbol);
+                    
+                    // Check if all valid
+                    const allValid = Object.values(passwordRules).every(rule => rule === true);
+                    
+                    // Update password field visual
+                    if (val.length > 0) {
+                        if (allValid) {
+                            passwordInput.classList.remove('invalid');
+                            passwordInput.classList.add('valid');
+                            if (passwordStrength) passwordStrength.classList.remove('has-errors');
+                        } else {
+                            passwordInput.classList.add('invalid');
+                            passwordInput.classList.remove('valid');
+                            if (passwordStrength) passwordStrength.classList.add('has-errors');
+                        }
                     } else {
-                        passNew.classList.add('invalid');
-                        passNew.classList.remove('valid');
-                        passwordStrength.classList.add('has-errors');
+                        passwordInput.classList.remove('invalid', 'valid');
+                        if (passwordStrength) passwordStrength.classList.remove('has-errors');
+                    }
+                    
+                    // Check password match
+                    if (confirmInput && confirmInput.value.length > 0) {
+                        checkPasswordMatch();
+                    }
+                    
+                    updateSubmitButton();
+                });
+            }
+            
+            // Confirm password validation
+            if (confirmInput) {
+                confirmInput.addEventListener('input', function() {
+                    checkPasswordMatch();
+                    updateSubmitButton();
+                });
+            }
+            
+            function updateRule(id, isValid) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                
+                const icon = el.querySelector('i');
+                
+                if (isValid) {
+                    el.classList.add('valid');
+                    if (icon) {
+                        icon.classList.remove('ph-circle');
+                        icon.classList.add('ph-check-circle');
+                        icon.setAttribute('weight', 'fill');
                     }
                 } else {
-                    passNew.classList.remove('invalid', 'valid');
-                    passwordStrength.classList.remove('has-errors');
-                }
-                
-                if (passConfirm.value.length > 0) {
-                    checkPasswordMatch();
-                }
-                
-                updateSubmitButton();
-            });
-        }
-
-        if (passConfirm) {
-            passConfirm.value = '';
-            
-            passConfirm.addEventListener('input', function() {
-                checkPasswordMatch();
-                updateSubmitButton();
-            });
-        }
-
-        function updateRule(id, isValid) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            
-            const icon = el.querySelector('i');
-            
-            if (isValid) {
-                el.classList.add('valid');
-                if (icon) {
-                    icon.classList.remove('ph-circle');
-                    icon.classList.add('ph-check-circle');
-                    icon.setAttribute('weight', 'fill');
-                }
-            } else {
-                el.classList.remove('valid');
-                if (icon) {
-                    icon.classList.remove('ph-check-circle');
-                    icon.classList.add('ph-circle');
-                    icon.setAttribute('weight', 'regular');
+                    el.classList.remove('valid');
+                    if (icon) {
+                        icon.classList.remove('ph-check-circle');
+                        icon.classList.add('ph-circle');
+                        icon.setAttribute('weight', 'regular');
+                    }
                 }
             }
-        }
-
-        function checkPasswordMatch() {
-            if (!passNew || !passConfirm || !matchIndicator) return;
             
-            const password = passNew.value;
-            const confirmPassword = passConfirm.value;
-            
-            if (confirmPassword.length > 0) {
-                if (password === confirmPassword) {
-                    passConfirm.classList.remove('invalid');
-                    passConfirm.classList.add('valid');
-                    matchIndicator.style.display = 'none';
+            function checkPasswordMatch() {
+                if (!passwordInput || !confirmInput || !matchIndicator) return;
+                
+                const password = passwordInput.value;
+                const confirmPassword = confirmInput.value;
+                
+                if (confirmPassword.length > 0) {
+                    if (password === confirmPassword) {
+                        confirmInput.classList.remove('invalid');
+                        confirmInput.classList.add('valid');
+                        matchIndicator.style.display = 'none';
+                    } else {
+                        confirmInput.classList.add('invalid');
+                        confirmInput.classList.remove('valid');
+                        matchIndicator.style.display = 'flex';
+                    }
                 } else {
-                    passConfirm.classList.add('invalid');
-                    passConfirm.classList.remove('valid');
-                    matchIndicator.style.display = 'flex';
-                    matchIndicator.classList.remove('success');
+                    confirmInput.classList.remove('invalid', 'valid');
+                    matchIndicator.style.display = 'none';
                 }
-            } else {
-                passConfirm.classList.remove('invalid', 'valid');
-                matchIndicator.style.display = 'none';
             }
-        }
-
-        function updateSubmitButton() {
-            if (!submitBtn || !passNew || !passConfirm) return;
             
-            const allValid = Object.values(passwordRules).every(rule => rule === true);
-            const passwordsMatch = passNew.value === passConfirm.value && passConfirm.value.length > 0;
-            
-            if (allValid && passwordsMatch) {
-                submitBtn.disabled = false;
-            } else {
-                submitBtn.disabled = true;
+            function updateSubmitButton() {
+                if (!submitBtn || !passwordInput || !confirmInput) return;
+                
+                const allValid = Object.values(passwordRules).every(rule => rule === true);
+                const passwordsMatch = passwordInput.value === confirmInput.value && confirmInput.value.length > 0;
+                
+                if (allValid && passwordsMatch) {
+                    submitBtn.disabled = false;
+                } else {
+                    submitBtn.disabled = true;
+                }
             }
-        }
-
-        // Initialize
-        if (submitBtn) {
-            submitBtn.disabled = true;
-        }
+            
+            // Prevent form submit if validation fails
+            const form = document.getElementById('update-password-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const allValid = Object.values(passwordRules).every(rule => rule === true);
+                    const passwordsMatch = passwordInput.value === confirmInput.value;
+                    
+                    if (!allValid || !passwordsMatch) {
+                        e.preventDefault();
+                        alert('Pastikan password memenuhi semua kriteria dan konfirmasi password cocok');
+                        return false;
+                    }
+                    
+                    // Disable button and show loading
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="ph ph-spinner" style="animation: spin 1s linear infinite;"></i> Menyimpan...';
+                });
+            }
+        });
     </script>
+    
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    
+    <script src="${url.resourcesPath}/js/script.js"></script>
 </body>
 </html>
