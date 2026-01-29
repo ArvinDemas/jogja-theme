@@ -91,7 +91,7 @@
                         <div class="form-group">
                             <label class="form-label"><#if !realm.loginWithEmailAllowed>Username<#elseif !realm.registrationEmailAsUsername>Email atau Username<#else>Email</#if></label>
                             <div class="input-wrapper">
-                                <input tabindex="1" id="username" class="form-input" name="username" value="${(login.username!'')}" type="text" autofocus autocomplete="off" placeholder="<#if !realm.loginWithEmailAllowed>user@kominfo.go.id<#elseif !realm.registrationEmailAsUsername>Email atau username<#else>nama@email.com</#if>" />
+                                <input tabindex="1" id="username" class="form-input" name="username" value="${(login.username!'')}" type="text" autofocus autocomplete="off" placeholder="<#if !realm.loginWithEmailAllowed>username<#elseif !realm.registrationEmailAsUsername>Email atau username<#else>email@jogjaprov.go.id</#if>" />
                                 <i class="ph ph-user input-icon"></i>
                             </div>
                         </div>
@@ -115,7 +115,7 @@
                     </form>
                 </div>
 
-                <#-- QR CODE VIEW -->
+                <#-- PASSKEY VIEW -->
                 <div id="form-qr" class="hidden">
                     <div class="qr-section">
                         <div class="passkey-header">
@@ -124,22 +124,47 @@
                             <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 20px;">Gunakan biometrik atau kunci keamanan untuk masuk dengan cepat</p>
                         </div>
                         
-                        <#if authenticators?? && authenticators.authenticators??>
+                        <#-- Check if user has registered passkeys -->
+                        <#if auth?? && auth.attemptedUsername?? && authenticators?? && authenticators.authenticators?has_content>
+                            <#assign hasWebAuthn = false>
                             <#list authenticators.authenticators as authenticator>
                                 <#if authenticator.credential == "webauthn">
-                                    <div id="webAuthnAuthenticators" class="passkey-display">
-                                        <button type="button" class="passkey-btn" onclick="authenticateWebAuthn()">
-                                            <i class="ph ph-shield-check" weight="fill"></i>
-                                            <span>Gunakan Passkey</span>
-                                        </button>
-                                    </div>
+                                    <#assign hasWebAuthn = true>
+                                    <#break>
                                 </#if>
                             </#list>
+                            
+                            <#if hasWebAuthn>
+                                <div id="webAuthnAuthenticators" class="passkey-display">
+                                    <button type="button" class="passkey-btn" onclick="authenticateWebAuthn()">
+                                        <i class="ph ph-shield-check" weight="fill"></i>
+                                        <span>Gunakan Passkey</span>
+                                    </button>
+                                    
+                                    <form id="webauth-form" action="${url.loginAction}" method="post" style="display: none;">
+                                        <input type="hidden" id="clientDataJSON" name="clientDataJSON"/>
+                                        <input type="hidden" id="authenticatorData" name="authenticatorData"/>
+                                        <input type="hidden" id="signature" name="signature"/>
+                                        <input type="hidden" id="credentialId" name="credentialId"/>
+                                        <input type="hidden" id="userHandle" name="userHandle"/>
+                                    </form>
+                                </div>
+                            <#else>
+                                <div class="passkey-placeholder">
+                                    <i class="ph ph-key" style="font-size: 2rem; color: #cbd5e1; margin-bottom: 10px;"></i>
+                                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px;">Belum ada passkey terdaftar</p>
+                                    <p style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 15px;">Daftarkan passkey setelah login untuk akses lebih cepat</p>
+                                </div>
+                            </#if>
                         <#else>
                             <div class="passkey-placeholder">
                                 <i class="ph ph-key" style="font-size: 2rem; color: #cbd5e1; margin-bottom: 10px;"></i>
-                                <p style="font-size: 0.85rem; color: #64748b;">Belum ada passkey terdaftar</p>
-                                <p style="font-size: 0.75rem; color: #94a3b8;">Daftarkan passkey setelah login untuk akses lebih cepat</p>
+                                <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px;">Belum ada passkey terdaftar</p>
+                                <p style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 15px;">Login terlebih dahulu untuk mendaftarkan passkey</p>
+                                <button type="button" class="passkey-btn" onclick="document.getElementById('tab-pass').click();" style="background: linear-gradient(135deg, #64748b, #475569);">
+                                    <i class="ph ph-arrow-left"></i>
+                                    <span>Kembali ke Login</span>
+                                </button>
                             </div>
                         </#if>
                         
@@ -148,6 +173,7 @@
                             <p>• Login tanpa password menggunakan biometrik (sidik jari/wajah)</p>
                             <p>• Lebih aman dari password tradisional</p>
                             <p>• Tidak perlu mengingat password yang rumit</p>
+                            <p>• Mendukung Windows Hello, Touch ID, Face ID, dan security key</p>
                         </div>
                     </div>
                 </div>
@@ -180,6 +206,44 @@
             </div>
         </div>
     </div>
+    
+    <#-- WebAuthn Authentication Script -->
+    <script>
+        // WebAuthn Authentication Function
+        function authenticateWebAuthn() {
+            // Check if WebAuthn is supported
+            if (!window.PublicKeyCredential) {
+                alert('Browser Anda tidak mendukung Passkey. Gunakan Chrome, Edge, atau Safari versi terbaru.');
+                return;
+            }
+            
+            // Show loading state
+            const btn = event.target.closest('button');
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner" style="animation: spin 1s linear infinite;"></i><span>Memproses...</span>';
+            
+            // Get challenge from Keycloak
+            // In production, this should call Keycloak's WebAuthn endpoint
+            // For now, show a message about setup
+            setTimeout(() => {
+                alert('Fitur Passkey memerlukan konfigurasi WebAuthn di Keycloak.\n\nPastikan:\n1. WebAuthn Authenticator sudah di-enable\n2. User sudah register passkey di profile\n3. Browser support WebAuthn (Chrome/Edge/Safari)');
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            }, 1000);
+            
+            // TODO: Implement actual WebAuthn flow
+            // This requires Keycloak WebAuthn configuration and proper challenge/response handling
+        }
+    </script>
+    
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    
     <script src="${url.resourcesPath}/js/script.js"></script>
 </body>
 </html>

@@ -21,7 +21,7 @@
             </div>
             <div class="carousel-container">
                 <div class="security-tips-section">
-                    <h2 class="tips-main-title">Selamat Datang di<br/>SSO Pemda DIY</h2>
+                    <br> <br> <br>
                     <div class="tips-badge">Tips Nyaman Karena Aman</div>
                     
                     <div class="tips-list">
@@ -50,7 +50,7 @@
                             <div class="tip-icon">
                                 <i class="ph ph-lock-key" weight="fill"></i>
                             </div>
-                            <p>Hindari password yang mudah ditebak. Gunakan kombinasi hurft besar, huruf kecil, simbol dan angka, dengan panjang minimal 12 karakter</p>
+                            <p>Hindari password yang mudah ditebak. Gunakan kombinasi huruf besar, huruf kecil, simbol dan angka, dengan panjang minimal 12 karakter</p>
                         </div>
                     </div>
                 </div>
@@ -82,13 +82,13 @@
                         <div class="form-group">
                             <label class="form-label">Nama Depan</label>
                             <div class="input-wrapper">
-                                <input type="text" name="firstName" class="form-input" value="${(register.formData.firstName!'')}" placeholder="Budi" autocomplete="off" required />
+                                <input type="text" name="firstName" class="form-input" value="${(register.formData.firstName!'')}" placeholder="Nama Depan" autocomplete="off" required />
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Nama Belakang</label>
                             <div class="input-wrapper">
-                                <input type="text" name="lastName" class="form-input" value="${(register.formData.lastName!'')}" placeholder="Santoso" autocomplete="off" />
+                                <input type="text" name="lastName" class="form-input" value="${(register.formData.lastName!'')}" placeholder="Nama Belakang" autocomplete="off" />
                             </div>
                         </div>
                     </div>
@@ -97,7 +97,7 @@
                     <div class="form-group">
                         <label class="form-label">Email Aktif</label>
                         <div class="input-wrapper">
-                            <input type="email" name="email" class="form-input" value="${(register.formData.email!'')}" placeholder="nama@email.com" autocomplete="off" required />
+                            <input type="email" name="email" class="form-input" value="${(register.formData.email!'')}" placeholder="email@jogjaprov.go.id" autocomplete="off" required />
                             <i class="ph ph-envelope input-icon"></i>
                         </div>
                     </div>
@@ -107,7 +107,7 @@
                         <div class="form-group">
                             <label class="form-label">Username</label>
                             <div class="input-wrapper">
-                                <input type="text" name="username" class="form-input" value="${(register.formData.username!'')}" placeholder="budi_santoso" autocomplete="off" required />
+                                <input type="text" name="username" class="form-input" value="${(register.formData.username!'')}" placeholder="nama.anda" autocomplete="off" required />
                                 <i class="ph ph-user input-icon"></i>
                             </div>
                         </div>

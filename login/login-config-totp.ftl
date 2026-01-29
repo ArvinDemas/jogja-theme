@@ -36,6 +36,79 @@
         .copy-btn:hover { color: #0284c7; }
 
         .manual-toggle { background: none; border: none; color: #64748b; font-size: 0.85rem; cursor: pointer; text-decoration: underline; margin-top: 10px; }
+        
+        /* OTP Input Boxes */
+        .otp-boxes-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .otp-box {
+            width: 50px;
+            height: 60px;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            color: #0f172a;
+            background: white;
+            transition: all 0.3s ease;
+        }
+        
+        .otp-box:focus {
+            border-color: #0ea5e9;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+        }
+        
+        .otp-box.filled {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .otp-hidden-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .btn-secondary {
+            flex: 1;
+            padding: 14px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-secondary:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
+        
+        .btn-primary {
+            flex: 2;
+        }
     </style>
 </head>
 <body>
@@ -121,7 +194,6 @@
                         <h3 class="step-title">Scan Barcode</h3>
                     </div>
                     <div style="text-align: center;">
-                        <#-- INI KUNCINYA: Gunakan Gambar dari Server Keycloak, Bukan JS Client -->
                         <div class="qr-wrapper">
                             <img src="data:image/png;base64, ${totp.totpSecretQrCode}" alt="Scan QR Code ini" />
                         </div>
@@ -151,10 +223,16 @@
                     
                     <form action="${url.loginAction}" class="${properties.kcFormClass!}" id="kc-totp-settings-form" method="post">
                         <div class="form-group">
-                            <div class="input-wrapper">
-                                <input type="text" id="totp" name="totp" autocomplete="off" class="form-input" placeholder="Masukkan 6 digit kode" style="text-align: center; letter-spacing: 5px; font-weight: 700; font-size: 1.2rem;" maxlength="6" autofocus />
-                                <i class="ph ph-key input-icon"></i>
+                            <label class="form-label" style="text-align: center; display: block; margin-bottom: 10px;">Masukkan 6 Digit Kode</label>
+                            <div class="otp-boxes-container">
+                                <input type="text" class="otp-box" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="0" autocomplete="off" />
+                                <input type="text" class="otp-box" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="1" autocomplete="off" />
+                                <input type="text" class="otp-box" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="2" autocomplete="off" />
+                                <input type="text" class="otp-box" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="3" autocomplete="off" />
+                                <input type="text" class="otp-box" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="4" autocomplete="off" />
+                                <input type="text" class="otp-box" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="5" autocomplete="off" />
                             </div>
+                            <input type="hidden" id="totp" name="totp" class="otp-hidden-input" />
                         </div>
 
                         <input type="hidden" id="totpSecret" name="totpSecret" value="${totp.totpSecret}" />
@@ -163,13 +241,23 @@
 
                         <#-- DEVICE NAME (OPTIONAL) -->
                         <div class="form-group">
+                            <label class="form-label">Nama Perangkat (Opsional)</label>
                             <div class="input-wrapper">
-                                <input type="text" class="form-input" id="userLabel" name="userLabel" autocomplete="off" placeholder="Nama Perangkat (cth: iPhone Saya)" value="${(totp.userLabel!'')}" />
+                                <input type="text" class="form-input" id="userLabel" name="userLabel" autocomplete="off" placeholder="Contoh: iPhone Pribadi" value="${(totp.userLabel!'')}" />
                                 <i class="ph ph-device-mobile input-icon"></i>
                             </div>
                         </div>
 
-                        <button type="submit" class="main-btn" id="saveTOTPBtn">Simpan & Aktifkan</button>
+                        <div class="button-group">
+                            <button type="button" class="btn-secondary" onclick="window.location.href='${url.loginUrl}'">
+                                <i class="ph ph-arrow-left"></i>
+                                Kembali
+                            </button>
+                            <button type="submit" class="main-btn btn-primary" id="saveTOTPBtn">
+                                <i class="ph ph-check-circle"></i>
+                                Simpan & Aktifkan
+                            </button>
+                        </div>
                     </form>
                 </div>
 
@@ -193,6 +281,91 @@
                 alert("Kode berhasil disalin: " + copyText);
             });
         }
+        
+        // OTP Box Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const otpBoxes = document.querySelectorAll('.otp-box');
+            const hiddenInput = document.getElementById('totp');
+            
+            otpBoxes.forEach((box, index) => {
+                box.addEventListener('input', function(e) {
+                    const value = e.target.value;
+                    
+                    // Only allow numbers
+                    if (!/^[0-9]$/.test(value)) {
+                        e.target.value = '';
+                        return;
+                    }
+                    
+                    // Add filled class
+                    if (value) {
+                        e.target.classList.add('filled');
+                    } else {
+                        e.target.classList.remove('filled');
+                    }
+                    
+                    // Update hidden input
+                    updateHiddenInput();
+                    
+                    // Move to next box
+                    if (value && index < otpBoxes.length - 1) {
+                        otpBoxes[index + 1].focus();
+                    }
+                });
+                
+                box.addEventListener('keydown', function(e) {
+                    // Handle backspace
+                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                        otpBoxes[index - 1].focus();
+                        otpBoxes[index - 1].value = '';
+                        otpBoxes[index - 1].classList.remove('filled');
+                        updateHiddenInput();
+                    }
+                    
+                    // Handle arrow keys
+                    if (e.key === 'ArrowLeft' && index > 0) {
+                        otpBoxes[index - 1].focus();
+                    }
+                    if (e.key === 'ArrowRight' && index < otpBoxes.length - 1) {
+                        otpBoxes[index + 1].focus();
+                    }
+                });
+                
+                // Handle paste
+                box.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pastedData = e.clipboardData.getData('text').slice(0, 6);
+                    const digits = pastedData.match(/[0-9]/g);
+                    
+                    if (digits) {
+                        digits.forEach((digit, i) => {
+                            if (i < otpBoxes.length) {
+                                otpBoxes[i].value = digit;
+                                otpBoxes[i].classList.add('filled');
+                            }
+                        });
+                        updateHiddenInput();
+                        
+                        // Focus last filled box or next empty
+                        const lastIndex = Math.min(digits.length, otpBoxes.length - 1);
+                        otpBoxes[lastIndex].focus();
+                    }
+                });
+            });
+            
+            function updateHiddenInput() {
+                let code = '';
+                otpBoxes.forEach(box => {
+                    code += box.value;
+                });
+                hiddenInput.value = code;
+            }
+            
+            // Focus first box on load
+            if (otpBoxes.length > 0) {
+                otpBoxes[0].focus();
+            }
+        });
     </script>
 </body>
 </html>
