@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
+
     // --- 1. CAROUSEL & PROGRESS BAR ---
     const slides = document.querySelectorAll('.carousel-slide');
     const progressBar = document.querySelector('.progress-bar');
-    
+
     if (slides.length > 0 && progressBar) {
         let currentSlide = 0;
         const slideDuration = 5000;
@@ -27,30 +27,52 @@ document.addEventListener('DOMContentLoaded', () => {
         setInterval(showNextSlide, slideDuration);
     }
 
-    // --- 2. TAB LOGIN (Kredensial / Passkey) ---
-    const tabPass = document.getElementById('tab-pass');
-    const tabQr = document.getElementById('tab-passkey');
-    const formPass = document.getElementById('form-credential');
-    const formQr = document.getElementById('form-qr');
+    // --- 2. TAB LOGIN (3 TABS: Kredensial, QR Code, Passkey) ---
+    const tabCredential = document.getElementById('tab-credential');
+    const tabQr = document.getElementById('tab-qr');
+    const tabPasskey = document.getElementById('tab-passkey');
 
-    if (tabPass && tabQr) {
-        tabPass.addEventListener('click', () => {
-            tabPass.classList.add('active');
+    const formCredential = document.getElementById('form-credential');
+    const formQr = document.getElementById('form-qr');
+    const formPasskey = document.getElementById('form-passkey');
+
+    if (tabCredential && tabQr && tabPasskey) {
+        // Tab Kredensial
+        tabCredential.addEventListener('click', () => {
+            tabCredential.classList.add('active');
             tabQr.classList.remove('active');
-            formPass.classList.remove('hidden');
+            tabPasskey.classList.remove('active');
+
+            formCredential.classList.remove('hidden');
             formQr.classList.add('hidden');
+            formPasskey.classList.add('hidden');
         });
 
+        // Tab QR Code
         tabQr.addEventListener('click', () => {
             tabQr.classList.add('active');
-            tabPass.classList.remove('active');
+            tabCredential.classList.remove('active');
+            tabPasskey.classList.remove('active');
+
             formQr.classList.remove('hidden');
-            formPass.classList.add('hidden');
+            formCredential.classList.add('hidden');
+            formPasskey.classList.add('hidden');
+        });
+
+        // Tab Passkey
+        tabPasskey.addEventListener('click', () => {
+            tabPasskey.classList.add('active');
+            tabCredential.classList.remove('active');
+            tabQr.classList.remove('active');
+
+            formPasskey.classList.remove('hidden');
+            formCredential.classList.add('hidden');
+            formQr.classList.add('hidden');
         });
     }
 
     // --- 3. PASSWORD TOGGLE (Show/Hide) ---
-    window.togglePassword = function(id) {
+    window.togglePassword = function (id) {
         const input = document.getElementById(id);
         const icon = document.querySelector(`[onclick="togglePassword('${id}')"]`);
         if (input && icon) {
@@ -73,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const passwordStrength = document.querySelector('.password-strength');
     const submitBtn = document.getElementById('submit-btn');
     const privacyCheckbox = document.getElementById('privacy-accept');
-    
+
     let passwordRules = {
         length: false,
         upper: false,
@@ -84,24 +106,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (regPass) {
         // Clear default values on page load
         regPass.value = '';
-        
-        regPass.addEventListener('input', function() {
+
+        regPass.addEventListener('input', function () {
             const val = this.value;
-            
+
             // Validasi 4 Aturan
             passwordRules.length = val.length >= 8;
             passwordRules.upper = /[A-Z]/.test(val);
             passwordRules.number = /[0-9]/.test(val);
             passwordRules.symbol = /[!@#$%^&*(),.?":{}|<>]/.test(val);
-            
+
             updateRule('rule-length', passwordRules.length);
             updateRule('rule-upper', passwordRules.upper);
             updateRule('rule-number', passwordRules.number);
             updateRule('rule-symbol', passwordRules.symbol);
-            
+
             // Check if all rules are valid
             const allValid = Object.values(passwordRules).every(rule => rule === true);
-            
+
             // Update password field visual state
             if (val.length > 0) {
                 if (allValid) {
@@ -123,20 +145,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     passwordStrength.classList.remove('has-errors');
                 }
             }
-            
+
             // Check password match if confirm field has value
             if (regConfirm && regConfirm.value.length > 0) {
                 checkPasswordMatch();
             }
-            
+
             updateSubmitButton();
         });
     }
 
     if (regConfirm) {
         regConfirm.value = '';
-        
-        regConfirm.addEventListener('input', function() {
+
+        regConfirm.addEventListener('input', function () {
             checkPasswordMatch();
             updateSubmitButton();
         });
@@ -144,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Privacy checkbox listener
     if (privacyCheckbox) {
-        privacyCheckbox.addEventListener('change', function() {
+        privacyCheckbox.addEventListener('change', function () {
             updateSubmitButton();
         });
     }
@@ -152,9 +174,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateRule(id, isValid) {
         const el = document.getElementById(id);
         if (!el) return;
-        
+
         const icon = el.querySelector('i');
-        
+
         if (isValid) {
             el.classList.add('valid');
             if (icon) {
@@ -174,10 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkPasswordMatch() {
         if (!regPass || !regConfirm || !matchIndicator) return;
-        
+
         const password = regPass.value;
         const confirmPassword = regConfirm.value;
-        
+
         if (confirmPassword.length > 0) {
             if (password === confirmPassword) {
                 // Passwords match
@@ -199,11 +221,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateSubmitButton() {
         if (!submitBtn || !regPass || !regConfirm) return;
-        
+
         const allValid = Object.values(passwordRules).every(rule => rule === true);
         const passwordsMatch = regPass.value === regConfirm.value && regConfirm.value.length > 0;
         const privacyAccepted = privacyCheckbox ? privacyCheckbox.checked : true;
-        
+
         if (allValid && passwordsMatch && privacyAccepted) {
             submitBtn.disabled = false;
         } else {
@@ -218,13 +240,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (input.getAttribute('autocomplete') === 'off') {
             input.value = '';
         }
-        
+
         // Disable autocomplete
         input.setAttribute('autocomplete', 'new-password');
-        
+
         // Clear on focus for password fields
         if (input.type === 'password') {
-            input.addEventListener('focus', function() {
+            input.addEventListener('focus', function () {
                 if (this.value === '') {
                     this.value = '';
                 }

@@ -151,8 +151,8 @@
                 <#-- ACTION BUTTONS -->
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     <#if skipLink??>
-                        <#-- Skip link provided -->
-                    <#elseif client.baseUrl?has_content>
+                        <#-- Skip link provided, do nothing -->
+                    <#elseif (client?? && client.baseUrl?has_content)>
                         <a href="${client.baseUrl}" class="main-btn">
                             <i class="ph ph-arrow-left"></i>
                             Kembali ke Aplikasi
