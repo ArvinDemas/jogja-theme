@@ -1769,3 +1769,269 @@ h3,
 #qr-code-image {
     animation: pulse 2s ease-in-out infinite;
 }
+
+/* ============================================ */
+/* QR CODE LOGIN - IMPROVED STYLING */
+/* ============================================ */
+
+/* QR Header */
+.qr-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.qr-header-icon {
+    display: block;
+    font-size: 3.5rem;
+    color: #0ea5e9;
+    margin-bottom: 15px;
+}
+
+.qr-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.qr-subtitle {
+    font-size: 0.95rem;
+    color: #64748b;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* QR Code Container */
+.qr-code-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.qr-code-container-main {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    border: 3px dashed #0ea5e9;
+    box-shadow: 0 10px 30px rgba(14, 165, 233, 0.15);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.qr-code-container-main:hover {
+    transform: scale(1.02);
+    box-shadow: 0 15px 40px rgba(14, 165, 233, 0.25);
+}
+
+.qr-code-img {
+    width: 260px;
+    height: 260px;
+    display: block;
+    animation: qrPulse 3s ease-in-out infinite;
+}
+
+@keyframes qrPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.95;
+        transform: scale(0.98);
+    }
+}
+
+/* Instructions Box */
+.qr-instructions-box {
+    background: #f0f9ff;
+    border: 1px solid #bfdbfe;
+    border-left: 4px solid #0ea5e9;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 25px 0;
+}
+
+.instruction-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0c4a6e;
+    margin-bottom: 12px;
+}
+
+.instruction-header i {
+    font-size: 1.3rem;
+    color: #0ea5e9;
+}
+
+.instruction-list {
+    margin: 0 0 0 28px;
+    padding: 0;
+    color: #0c4a6e;
+    line-height: 1.9;
+    font-size: 0.88rem;
+}
+
+.instruction-list li {
+    margin-bottom: 8px;
+    padding-left: 8px;
+}
+
+.instruction-list li::marker {
+    color: #0ea5e9;
+    font-weight: 700;
+}
+
+/* QR Status Indicator */
+.qr-status-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 15px;
+    background: #fffbeb;
+    border: 1px solid #fef3c7;
+    border-radius: 12px;
+    margin: 20px 0;
+}
+
+.qr-status-indicator i {
+    font-size: 1.4rem;
+    color: #f59e0b;
+}
+
+.qr-status-indicator span {
+    font-size: 0.9rem;
+    color: #92400e;
+    font-weight: 600;
+}
+
+/* QR Action Buttons */
+.qr-action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.qr-btn-secondary {
+    padding: 13px 16px;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.qr-btn-secondary:hover {
+    background: #f8fafc;
+    border-color: #0ea5e9;
+    color: #0ea5e9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+}
+
+.qr-btn-secondary i {
+    font-size: 1.1rem;
+}
+
+/* QR Unavailable State */
+.qr-unavailable {
+    text-align: center;
+    padding: 40px 30px;
+}
+
+.qr-unavailable-icon {
+    font-size: 4rem;
+    color: #f59e0b;
+    margin-bottom: 25px;
+    display: block;
+}
+
+.qr-unavailable-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 12px;
+}
+
+.qr-unavailable-text {
+    font-size: 0.95rem;
+    color: #64748b;
+    line-height: 1.7;
+    margin-bottom: 25px;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.qr-admin-notice {
+    background: #fffbeb;
+    border: 1px solid #fef3c7;
+    border-left: 4px solid #f59e0b;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 25px 0;
+    text-align: left;
+}
+
+/* Responsive QR Section */
+@media (max-width: 600px) {
+    .qr-code-img {
+        width: 220px;
+        height: 220px;
+    }
+
+    .qr-code-container-main {
+        padding: 20px;
+    }
+
+    .qr-action-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .instruction-list {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .qr-code-img {
+        width: 200px;
+        height: 200px;
+    }
+
+    .qr-header-icon {
+        font-size: 2.5rem;
+    }
+
+    .qr-title {
+        font-size: 1.2rem;
+    }
+}
+
+/* Animation for refresh icon */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

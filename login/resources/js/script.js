@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. CAROUSEL & PROGRESS BAR ---
+    // ==========================================
+    // 1. CAROUSEL & VISUAL (Slide Gambar)
+    // ==========================================
     const slides = document.querySelectorAll('.carousel-slide');
     const progressBar = document.querySelector('.progress-bar');
 
@@ -11,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         function startProgress() {
             progressBar.style.transition = 'none';
             progressBar.style.width = '0%';
-            void progressBar.offsetWidth; // Force Reflow
+            void progressBar.offsetWidth;
             progressBar.style.transition = `width ${slideDuration}ms linear`;
             progressBar.style.width = '100%';
         }
@@ -27,90 +29,34 @@ document.addEventListener('DOMContentLoaded', () => {
         setInterval(showNextSlide, slideDuration);
     }
 
-    // --- 2. TAB LOGIN (3 TABS: Kredensial, QR Code, Passkey) ---
-    const tabCredential = document.getElementById('tab-credential');
-    const tabQr = document.getElementById('tab-qr');
-    const tabPasskey = document.getElementById('tab-passkey');
-
-    const formCredential = document.getElementById('form-credential');
-    const formQr = document.getElementById('form-qr');
-    const formPasskey = document.getElementById('form-passkey');
-
-    if (tabCredential && tabQr && tabPasskey) {
-        // Tab Kredensial
-        tabCredential.addEventListener('click', () => {
-            tabCredential.classList.add('active');
-            tabQr.classList.remove('active');
-            tabPasskey.classList.remove('active');
-
-            formCredential.classList.remove('hidden');
-            formQr.classList.add('hidden');
-            formPasskey.classList.add('hidden');
-        });
-
-        // Tab QR Code
-        tabQr.addEventListener('click', () => {
-            tabQr.classList.add('active');
-            tabCredential.classList.remove('active');
-            tabPasskey.classList.remove('active');
-
-            formQr.classList.remove('hidden');
-            formCredential.classList.add('hidden');
-            formPasskey.classList.add('hidden');
-        });
-
-        // Tab Passkey
-        tabPasskey.addEventListener('click', () => {
-            tabPasskey.classList.add('active');
-            tabCredential.classList.remove('active');
-            tabQr.classList.remove('active');
-
-            formPasskey.classList.remove('hidden');
-            formCredential.classList.add('hidden');
-            formQr.classList.add('hidden');
-        });
-    }
-
-    // --- 3. PASSWORD TOGGLE (Show/Hide) ---
+    // ==========================================
+    // 2. TOGGLE PASSWORD
+    // ==========================================
     window.togglePassword = function (id) {
         const input = document.getElementById(id);
         const icon = document.querySelector(`[onclick="togglePassword('${id}')"]`);
         if (input && icon) {
-            if (input.type === "password") {
-                input.type = "text";
-                icon.classList.replace('ph-eye', 'ph-eye-slash');
-                icon.style.color = "#0ea5e9";
-            } else {
-                input.type = "password";
-                icon.classList.replace('ph-eye-slash', 'ph-eye');
-                icon.style.color = "#94a3b8";
-            }
+            const isPass = input.type === "password";
+            input.type = isPass ? "text" : "password";
+            icon.classList.toggle('ph-eye', !isPass);
+            icon.classList.toggle('ph-eye-slash', isPass);
         }
     }
 
-    // --- 4. PASSWORD VALIDATION WITH VISUAL FEEDBACK (Register) ---
+    // ==========================================
+    // 3. VALIDASI REGISTER
+    // ==========================================
     const regPass = document.getElementById('reg-pass');
     const regConfirm = document.getElementById('reg-confirm');
     const matchIndicator = document.getElementById('match-indicator');
     const passwordStrength = document.querySelector('.password-strength');
     const submitBtn = document.getElementById('submit-btn');
     const privacyCheckbox = document.getElementById('privacy-accept');
-
-    let passwordRules = {
-        length: false,
-        upper: false,
-        number: false,
-        symbol: false
-    };
+    let passwordRules = { length: false, upper: false, number: false, symbol: false };
 
     if (regPass) {
-        // Clear default values on page load
-        regPass.value = '';
-
         regPass.addEventListener('input', function () {
             const val = this.value;
-
-            // Validasi 4 Aturan
             passwordRules.length = val.length >= 8;
             passwordRules.upper = /[A-Z]/.test(val);
             passwordRules.number = /[0-9]/.test(val);
@@ -121,159 +67,72 @@ document.addEventListener('DOMContentLoaded', () => {
             updateRule('rule-number', passwordRules.number);
             updateRule('rule-symbol', passwordRules.symbol);
 
-            // Check if all rules are valid
-            const allValid = Object.values(passwordRules).every(rule => rule === true);
-
-            // Update password field visual state
+            const allValid = Object.values(passwordRules).every(r => r === true);
             if (val.length > 0) {
-                if (allValid) {
-                    regPass.classList.remove('invalid');
-                    regPass.classList.add('valid');
-                    if (passwordStrength) {
-                        passwordStrength.classList.remove('has-errors');
-                    }
-                } else {
-                    regPass.classList.add('invalid');
-                    regPass.classList.remove('valid');
-                    if (passwordStrength) {
-                        passwordStrength.classList.add('has-errors');
-                    }
-                }
+                regPass.classList.toggle('valid', allValid);
+                regPass.classList.toggle('invalid', !allValid);
+                if (passwordStrength) passwordStrength.classList.toggle('has-errors', !allValid);
             } else {
-                regPass.classList.remove('invalid', 'valid');
-                if (passwordStrength) {
-                    passwordStrength.classList.remove('has-errors');
-                }
+                regPass.classList.remove('valid', 'invalid');
             }
-
-            // Check password match if confirm field has value
-            if (regConfirm && regConfirm.value.length > 0) {
-                checkPasswordMatch();
-            }
-
+            if (regConfirm && regConfirm.value.length > 0) checkPasswordMatch();
             updateSubmitButton();
         });
     }
 
     if (regConfirm) {
-        regConfirm.value = '';
-
         regConfirm.addEventListener('input', function () {
             checkPasswordMatch();
             updateSubmitButton();
         });
     }
 
-    // Privacy checkbox listener
     if (privacyCheckbox) {
-        privacyCheckbox.addEventListener('change', function () {
-            updateSubmitButton();
-        });
+        privacyCheckbox.addEventListener('change', updateSubmitButton);
     }
 
     function updateRule(id, isValid) {
         const el = document.getElementById(id);
         if (!el) return;
-
         const icon = el.querySelector('i');
-
         if (isValid) {
             el.classList.add('valid');
-            if (icon) {
-                icon.classList.remove('ph-circle');
-                icon.classList.add('ph-check-circle');
-                icon.setAttribute('weight', 'fill');
-            }
+            if (icon) { icon.className = 'ph ph-check-circle'; icon.setAttribute('weight', 'fill'); }
         } else {
             el.classList.remove('valid');
-            if (icon) {
-                icon.classList.remove('ph-check-circle');
-                icon.classList.add('ph-circle');
-                icon.setAttribute('weight', 'regular');
-            }
+            if (icon) { icon.className = 'ph ph-circle'; icon.setAttribute('weight', 'regular'); }
         }
     }
 
     function checkPasswordMatch() {
-        if (!regPass || !regConfirm || !matchIndicator) return;
-
-        const password = regPass.value;
-        const confirmPassword = regConfirm.value;
-
-        if (confirmPassword.length > 0) {
-            if (password === confirmPassword) {
-                // Passwords match
-                regConfirm.classList.remove('invalid');
-                regConfirm.classList.add('valid');
-                matchIndicator.style.display = 'none';
-            } else {
-                // Passwords don't match
-                regConfirm.classList.add('invalid');
-                regConfirm.classList.remove('valid');
-                matchIndicator.style.display = 'flex';
-                matchIndicator.classList.remove('success');
-            }
-        } else {
-            regConfirm.classList.remove('invalid', 'valid');
-            matchIndicator.style.display = 'none';
+        if (!regPass || !regConfirm) return;
+        const isMatch = regPass.value === regConfirm.value;
+        if (regConfirm.value.length > 0) {
+            regConfirm.classList.toggle('valid', isMatch);
+            regConfirm.classList.toggle('invalid', !isMatch);
+            if (matchIndicator) matchIndicator.style.display = isMatch ? 'none' : 'flex';
         }
     }
 
     function updateSubmitButton() {
-        if (!submitBtn || !regPass || !regConfirm) return;
-
-        const allValid = Object.values(passwordRules).every(rule => rule === true);
-        const passwordsMatch = regPass.value === regConfirm.value && regConfirm.value.length > 0;
-        const privacyAccepted = privacyCheckbox ? privacyCheckbox.checked : true;
-
-        if (allValid && passwordsMatch && privacyAccepted) {
-            submitBtn.disabled = false;
-        } else {
-            submitBtn.disabled = true;
-        }
+        if (!submitBtn) return;
+        const allValid = Object.values(passwordRules).every(r => r === true);
+        const isMatch = regPass && regConfirm && (regPass.value === regConfirm.value) && regConfirm.value.length > 0;
+        const isPrivacy = privacyCheckbox ? privacyCheckbox.checked : true;
+        submitBtn.disabled = !(allValid && isMatch && isPrivacy);
     }
 
-    // --- 5. CLEAR AUTOCOMPLETE ON LOAD ---
-    const allInputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]');
-    allInputs.forEach(input => {
-        // Clear value on page load
-        if (input.getAttribute('autocomplete') === 'off') {
-            input.value = '';
-        }
+    if (submitBtn) submitBtn.disabled = true;
 
-        // Disable autocomplete
-        input.setAttribute('autocomplete', 'new-password');
-
-        // Clear on focus for password fields
+    // ==========================================
+    // 4. CLEANUP INPUT
+    // ==========================================
+    document.querySelectorAll('input').forEach(input => {
+        input.setAttribute('autocomplete', 'off');
         if (input.type === 'password') {
             input.addEventListener('focus', function () {
-                if (this.value === '') {
-                    this.value = '';
-                }
+                if (this.value === '') this.value = '';
             });
         }
     });
-
-    // Additional method: Use readonly trick to prevent autofill
-    setTimeout(() => {
-        allInputs.forEach(input => {
-            input.removeAttribute('readonly');
-        });
-    }, 100);
-
-    // --- 6. CLEAR USERNAME AND EMAIL ---
-    const usernameInput = document.getElementById('username');
-    if (usernameInput) {
-        usernameInput.value = '';
-    }
-
-    const emailInputs = document.querySelectorAll('input[type="email"]');
-    emailInputs.forEach(input => {
-        input.value = '';
-    });
-
-    // Initialize submit button state
-    if (submitBtn) {
-        submitBtn.disabled = true;
-    }
 });
