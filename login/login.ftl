@@ -56,8 +56,46 @@
                 <#-- TAB 1: KREDENSIAL (PASSWORD LOGIN) -->
                 <#-- ===================================== -->
                 <div id="form-credential">
+                    <#-- ERROR MESSAGE CONTAINER (Will be filled by cookie if redirected from login.ftl) -->
+                    <div id="cookie-error-container"></div>
+                    
+                    <script>
+                    // Read error from cookie (set by login.ftl redirect)
+                    (function() {
+                        function getCookie(name) {
+                            var value = "; " + document.cookie;
+                            var parts = value.split("; " + name + "=");
+                            if (parts.length === 2) return decodeURIComponent(parts.pop().split(";").shift());
+                            return null;
+                        }
+                        
+                        function deleteCookie(name) {
+                            document.cookie = name + "=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+                        }
+                        
+                        var errorMessage = getCookie('keycloak_login_error');
+                        var errorType = getCookie('keycloak_login_error_type');
+                        
+                        if (errorMessage && errorType === 'error') {
+                            var container = document.getElementById('cookie-error-container');
+                            
+                            // Create error alert
+                            var errorAlert = document.createElement('div');
+                            errorAlert.className = 'alert alert-error';
+                            errorAlert.id = 'login-error-message';
+                            errorAlert.innerHTML = '<i class="ph ph-x-circle"></i><span>' + errorMessage + '</span>';
+                            container.appendChild(errorAlert);
+                            
+                            // Delete the cookies after reading
+                            deleteCookie('keycloak_login_error');
+                            deleteCookie('keycloak_login_error_type');
+                        }
+                    })();
+                    </script>
+                    
+                    <#-- Server-side error messages (fallback) -->
                     <#if message?has_content && (message.type != 'warning')>
-                        <div class="alert alert-${message.type}">
+                        <div class="alert alert-${message.type}" id="server-error-message">
                             <#if message.type = 'success'><i class="ph ph-check-circle"></i></#if>
                             <#if message.type = 'error'><i class="ph ph-x-circle"></i></#if>
                             <span>${kcSanitize(message.summary)?no_esc}</span>
@@ -120,87 +158,374 @@
                 </div>
 
                 <#-- ===================================== -->
-                <#-- TAB 2: QR CODE LOGIN -->
+                <#-- TAB 2: QR CODE LOGIN WITH AUTO-POLLING -->
                 <#-- ===================================== -->
                 <div id="form-qr" class="hidden">
                     <div class="qr-section">
                         <#-- CEK APAKAH ADA QR CODE DARI EXTENSION -->
                         <#if QRauthImage??>
                             <#-- QR CODE TERSEDIA -->
-                            <div style="text-align: center; margin-bottom: 25px;">
-                                <i class="ph ph-qr-code" style="font-size: 3rem; color: #0ea5e9; margin-bottom: 15px;"></i>
-                                <h3 style="font-size: 1.3rem; color: #0f172a; margin-bottom: 10px;">
-                                    Scan untuk Login
-                                </h3>
-                                <p style="font-size: 0.9rem; color: #64748b;">
-                                    Gunakan kamera HP Anda untuk scan QR code
-                                </p>
+                            <div class="qr-header">
+                                <i class="ph ph-qr-code qr-header-icon"></i>
+                                <h3 class="qr-title">Scan QR Code</h3>
+                                <p class="qr-subtitle">Gunakan HP Anda untuk login otomatis</p>
                             </div>
                             
-                            <div style="text-align: center; margin: 30px 0;">
-                                <div style="background: white; padding: 20px; border-radius: 16px; border: 2px dashed #0ea5e9; display: inline-block;">
-                                    <img src="data:image/png;base64,${QRauthImage}" 
-                                         alt="QR Code" 
-                                         style="width: 240px; height: 240px; display: block;"
-                                         id="qr-code-image"/>
+                            <div class="qr-code-wrapper">
+                                <div class="qr-code-container-main" style="position: relative; transition: transform 0.2s;">
+                                    <img src="data:image/png;base64,${QRauthImage}" alt="QR Code" class="qr-code-img" id="qr-code-image"/>
                                 </div>
                             </div>
                             
-                            <div style="background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 15px; border-radius: 10px; margin: 20px 0;">
-                                <p style="font-size: 0.85rem; color: #0c4a6e; line-height: 1.6; margin: 0;">
-                                    <strong>ℹ️ Cara Menggunakan:</strong><br/>
-                                    1. Buka kamera atau QR scanner di HP<br/>
-                                    2. Arahkan ke QR code di atas<br/>
-                                    3. Login dengan akun Anda di HP<br/>
-                                    4. Halaman ini akan otomatis login
-                                </p>
-                            </div>
-                            
-                            <#-- Auto-refresh indicator -->
-                            <div style="text-align: center; margin-top: 15px;">
-                                <p style="font-size: 0.75rem; color: #94a3b8; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                    <i class="ph ph-arrow-clockwise" style="animation: spin 2s linear infinite;"></i>
-                                    <span>QR code akan diperbarui otomatis...</span>
-                                </p>
-                            </div>
-                            
-                            <#-- Tombol refresh manual (opsional) -->
-                            <button type="button" 
-                                    onclick="location.reload()" 
-                                    class="main-btn" 
-                                    style="background: white; color: #0f172a; border: 2px solid #e2e8f0; margin-top: 15px;">
-                                <i class="ph ph-arrow-clockwise"></i>
-                                Refresh QR Code
-                            </button>
-                        <#else>
-                            <#-- QR CODE TIDAK TERSEDIA (Extension belum diaktifkan) -->
-                            <div style="text-align: center; padding: 30px;">
-                                <i class="ph ph-warning-circle" style="font-size: 3.5rem; color: #f59e0b; margin-bottom: 20px;"></i>
-                                <h3 style="font-size: 1.2rem; color: #0f172a; margin-bottom: 12px;">
-                                    QR Login Belum Tersedia
-                                </h3>
-                                <p style="font-size: 0.9rem; color: #64748b; line-height: 1.6; margin-bottom: 25px;">
-                                    Fitur QR Code Login belum diaktifkan pada sistem ini. Silakan hubungi administrator untuk mengaktifkan fitur ini.
-                                </p>
-                                
-                                <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 10px; margin: 20px 0; text-align: left;">
-                                    <p style="font-size: 0.85rem; color: #92400e; line-height: 1.6; margin: 0;">
-                                        <strong>ℹ️ Untuk Administrator:</strong><br/>
-                                        1. Install QR Code Extension ke Keycloak<br/>
-                                        2. Aktifkan QR authentication flow<br/>
-                                        3. Bind flow ke browser authentication<br/>
-                                        4. Restart Keycloak
-                                    </p>
+                            <!-- CIRCULAR COUNTDOWN TIMER -->
+                            <div style="text-align: center; margin: 20px 0;">
+                                <div style="position: relative; display: inline-block;">
+                                    <svg width="80" height="80" style="transform: rotate(-90deg);">
+                                        <circle cx="40" cy="40" r="35" stroke="#e2e8f0" stroke-width="6" fill="none"/>
+                                        <circle id="qr-progress-circle" cx="40" cy="40" r="35" stroke="#0ea5e9" stroke-width="6" fill="none" 
+                                                stroke-dasharray="220" stroke-dashoffset="0" style="transition: stroke-dashoffset 1s linear;"/>
+                                    </svg>
+                                    <div id="qr-timer-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.2rem; font-weight: 700; color: #0f172a;">90</div>
                                 </div>
+                                <div id="qr-loading-status" style="margin-top: 10px; font-size: 0.85rem; color: #64748b; font-weight: 500;">
+                                    <i class="ph ph-spinner" style="animation: spin 1s linear infinite; vertical-align: middle;"></i> Menunggu Scan
+                                </div>
+                            </div>
+                            
+                            <#-- ============================================ -->
+                            <#-- SCRIPT AJAIB: AUTO-POLLING (KUNCI SUKSES!) -->
+                            <#-- ============================================ -->
+                            <script>
+                            (function() {
+                                // URL saat ini (termasuk session ID)
+                                var currentUrl = window.location.href;
+                                var pollingInterval = null;
+                                var pollCount = 0;
+                                var maxPolls = 90; // 90 x 2 detik = 3 menit
                                 
-                                <button type="button" 
-                                        onclick="switchToTab('credential')" 
-                                        class="main-btn" 
-                                        style="background: #0f172a; max-width: 300px; margin: 0 auto;">
-                                    <i class="ph ph-arrow-left"></i>
-                                    Kembali ke Login Biasa
+                                // Status indicator element
+                                var statusEl = document.getElementById('qr-loading-status');
+                                
+                                // Function to update status
+                                function updateStatus(message, color, bgColor) {
+                                    if (statusEl) {
+                                        statusEl.innerHTML = message;
+                                        statusEl.style.color = color;
+                                        statusEl.style.background = bgColor;
+                                    }
+                                }
+                                
+                                // Polling function
+                                function pollLoginStatus() {
+                                    pollCount++;
+                                    
+                                    // Update countdown timer
+                                    var remaining = maxPolls - pollCount;
+                                    var timerText = document.getElementById('qr-timer-text');
+                                    var progressCircle = document.getElementById('qr-progress-circle');
+                                    
+                                    if (timerText) {
+                                        timerText.textContent = remaining;
+                                    }
+                                    
+                                    // Update circular progress (220 is the circle circumference)
+                                    var progress = (pollCount / maxPolls) * 220;
+                                    if (progressCircle) {
+                                        progressCircle.style.strokeDashoffset = progress;
+                                    }
+                                    
+                                    // Update status text only
+                                    if (statusEl) {
+                                        statusEl.innerHTML = '<i class="ph ph-spinner" style="animation: spin 1s linear infinite; vertical-align: middle;"></i> Menunggu Scan';
+                                    }
+                                    
+                                    // Check if max polls reached
+                                    if (pollCount >= maxPolls) {
+                                        clearInterval(pollingInterval);
+                                        if (statusEl) {
+                                            statusEl.innerHTML = '<i class="ph ph-warning" style="vertical-align: middle;"></i> QR Code kedaluwarsa';
+                                            statusEl.style.color = '#92400e';
+                                        }
+                                        if (timerText) {
+                                            timerText.textContent = '0';
+                                            timerText.style.color = '#ef4444';
+                                        }
+                                        return;
+                                    }
+                                    
+                                    // Fetch current page to check if redirected
+                                    fetch(currentUrl, { 
+                                        method: 'GET', 
+                                        redirect: 'follow',
+                                        credentials: 'same-origin'
+                                    })
+                                    .then(function(response) {
+                                        // Keycloak akan me-redirect jika login sukses.
+                                        // Jika URL respons berbeda dengan URL halaman saat ini, berarti sudah masuk dashboard!
+                                        if (response.url && response.url !== currentUrl) {
+                                            clearInterval(pollingInterval);
+                                            if (statusEl) {
+                                                statusEl.innerHTML = '<i class="ph ph-check-circle" style="vertical-align: middle;"></i> Berhasil! Mengalihkan...';
+                                                statusEl.style.color = '#166534';
+                                            }
+                                            if (timerText) {
+                                                timerText.style.color = '#10b981';
+                                            }
+                                            
+                                            // Redirect to new URL (dashboard)
+                                            setTimeout(function() {
+                                                window.location.href = response.url;
+                                            }, 500);
+                                        }
+                                    })
+                                    .catch(function(err) {
+                                        // Error jaringan, continue polling
+                                        console.log('Polling... (attempt ' + pollCount + ')', err);
+                                    });
+                                }
+                                
+                                // Start polling setiap 2 detik
+                                console.log('[QR AUTO-POLLING] Started - checking every 2 seconds');
+                                pollingInterval = setInterval(pollLoginStatus, 2000);
+                                
+                                // Initial poll
+                                pollLoginStatus();
+                                
+                                // Cleanup on page unload
+                                window.addEventListener('beforeunload', function() {
+                                    if (pollingInterval) {
+                                        clearInterval(pollingInterval);
+                                    }
+                                });
+                            })();
+                            </script>
+                            
+                            <div class="qr-instructions-box" style="background: #f0f9ff; border: 1px solid #bfdbfe; border-left: 4px solid #0ea5e9; border-radius: 12px; padding: 18px; margin: 25px 0; text-align: left;">
+                                <div class="instruction-header" style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;">
+                                    <i class="ph ph-info" style="font-size: 1.2rem; color: #0ea5e9; margin-top: 2px; flex-shrink: 0;"></i>
+                                    <div style="flex: 1;">
+                                        <h4 style="font-size: 0.9rem; font-weight: 700; color: #0c4a6e; margin: 0 0 8px 0; font-family: 'Inter', sans-serif;">Cara Menggunakan</h4>
+                                        <ol style="margin: 0; padding-left: 18px; color: #0c4a6e; line-height: 1.7; font-size: 0.82rem;">
+                                            <li style="margin-bottom: 6px;">Buka kamera atau QR scanner di HP</li>
+                                            <li style="margin-bottom: 6px;">Arahkan ke QR code di atas</li>
+                                            <li style="margin-bottom: 6px;">Login dengan akun Anda di HP</li>
+                                            <li>Halaman ini akan otomatis login</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="qr-action-buttons">
+                                <button type="button" onclick="window.location.reload()" class="qr-btn-secondary">
+                                    <i class="ph ph-arrow-clockwise"></i> Refresh QR
+                                </button>
+                                <button type="button" onclick="switchToTab('credential')" class="qr-btn-secondary">
+                                    <i class="ph ph-arrow-left"></i> Password
                                 </button>
                             </div>
+                        <#else>
+                            <#-- QR CODE TIDAK TERSEDIA - FETCH VIA IFRAME, USE EXISTING UI -->
+                            <div class="qr-header">
+                                <i class="ph ph-qr-code qr-header-icon"></i>
+                                <h3 class="qr-title">Scan QR Code</h3>
+                                <p class="qr-subtitle" id="qr-subtitle-dynamic">Memuat QR Code...</p>
+                            </div>
+                            
+                            <div class="qr-code-wrapper">
+                                <div class="qr-code-container-main" id="qr-dynamic-container" style="position: relative; transition: transform 0.2s;">
+                                    <!-- Loading state -->
+                                    <div id="qr-loading-state" style="text-align: center; padding: 60px 0;">
+                                        <i class="ph ph-spinner" style="font-size: 4rem; color: #0ea5e9; animation: spin 1s linear infinite;"></i>
+                                        <p style="margin-top: 15px; color: #64748b; font-size: 0.9rem;">Memuat QR Code...</p>
+                                    </div>
+                                    
+                                    <!-- QR Code image (will be populated from iframe) -->
+                                    <img id="qr-code-dynamic" alt="QR Code" class="qr-code-img" style="display: none;"/>
+                                </div>
+                            </div>
+                            
+                            <!-- CIRCULAR COUNTDOWN TIMER (Same as normal QR) -->
+                            <div id="qr-timer-section" style="display: none; text-align: center; margin: 20px 0;">
+                                <div style="position: relative; display: inline-block;">
+                                    <svg width="80" height="80" style="transform: rotate(-90deg);">
+                                        <circle cx="40" cy="40" r="35" stroke="#e2e8f0" stroke-width="6" fill="none"/>
+                                        <circle id="qr-progress-circle-dynamic" cx="40" cy="40" r="35" stroke="#0ea5e9" stroke-width="6" fill="none" 
+                                                stroke-dasharray="220" stroke-dashoffset="0" style="transition: stroke-dashoffset 1s linear;"/>
+                                    </svg>
+                                    <div id="qr-timer-text-dynamic" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.2rem; font-weight: 700; color: #0f172a;">90</div>
+                                </div>
+                                <div id="qr-loading-status-dynamic" style="margin-top: 10px; font-size: 0.85rem; color: #64748b; font-weight: 500;">
+                                    <i class="ph ph-spinner" style="animation: spin 1s linear infinite; vertical-align: middle;"></i> Menunggu Scan
+                                </div>
+                            </div>
+                            
+                            <!-- Hidden iframe to fetch QR session -->
+                            <iframe id="qr-fetch-iframe" style="display: none; position: absolute; width: 1px; height: 1px; opacity: 0;"></iframe>
+                            
+                            <!-- Instructions (Same as normal QR) -->
+                            <div id="qr-instructions" style="display: none;" class="qr-instructions-box">
+                                <div class="instruction-header" style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;">
+                                    <i class="ph ph-info" style="font-size: 1.2rem; color: #0ea5e9; margin-top: 2px; flex-shrink: 0;"></i>
+                                    <div style="flex: 1;">
+                                        <h4 style="font-size: 0.9rem; font-weight: 700; color: #0c4a6e; margin: 0 0 8px 0; font-family: 'Inter', sans-serif;">Cara Menggunakan</h4>
+                                        <ol style="margin: 0; padding-left: 18px; color: #0c4a6e; line-height: 1.7; font-size: 0.82rem;">
+                                            <li style="margin-bottom: 6px;">Buka kamera atau QR scanner di HP</li>
+                                            <li style="margin-bottom: 6px;">Arahkan ke QR code di atas</li>
+                                            <li style="margin-bottom: 6px;">Login dengan akun Anda di HP</li>
+                                            <li>Halaman ini akan otomatis login</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Action buttons -->
+                            <div id="qr-actions" class="qr-action-buttons" style="display: none;">
+                                <button type="button" onclick="window.location.reload()" class="qr-btn-secondary">
+                                    <i class="ph ph-arrow-clockwise"></i> Refresh QR
+                                </button>
+                                <button type="button" onclick="switchToTab('credential')" class="qr-btn-secondary">
+                                    <i class="ph ph-arrow-left"></i> Password
+                                </button>
+                            </div>
+                            
+                            <!-- Error state -->
+                            <div id="qr-error-state" style="display: none; text-align: center; padding: 20px;">
+                                <i class="ph ph-warning-circle" style="font-size: 3rem; color: #f59e0b;"></i>
+                                <p style="margin-top: 15px; color: #64748b; font-size: 0.9rem;">Gagal memuat QR Code</p>
+                                <button type="button" onclick="retryLoadQR()" class="main-btn" style="margin-top: 20px;">
+                                    <i class="ph ph-arrow-clockwise"></i> Coba Lagi
+                                </button>
+                                <button type="button" onclick="switchToTab('credential')" class="secondary-btn" style="margin-top: 10px;">
+                                    <i class="ph ph-arrow-left"></i> Kembali ke Login
+                                </button>
+                            </div>
+                            
+                            <script>
+                            // Fetch QR code data via hidden iframe, inject into existing UI
+                            (function() {
+                                var iframe = document.getElementById('qr-fetch-iframe');
+                                var loadingState = document.getElementById('qr-loading-state');
+                                var qrImage = document.getElementById('qr-code-dynamic');
+                                var timerSection = document.getElementById('qr-timer-section');
+                                var instructions = document.getElementById('qr-instructions');
+                                var actions = document.getElementById('qr-actions');
+                                var errorState = document.getElementById('qr-error-state');
+                                var subtitle = document.getElementById('qr-subtitle-dynamic');
+                                var currentUrl = window.location.href;
+                                var retryCount = 0;
+                                var maxRetries = 3;
+                                var countdownInterval;
+                                
+                                function loadQRData() {
+                                    console.log('[QR Fetch] Loading QR data via iframe, attempt:', retryCount + 1);
+                                    
+                                    // Show loading state
+                                    loadingState.style.display = 'block';
+                                    qrImage.style.display = 'none';
+                                    timerSection.style.display = 'none';
+                                    instructions.style.display = 'none';
+                                    actions.style.display = 'none';
+                                    errorState.style.display = 'none';
+                                    subtitle.textContent = 'Memuat QR Code...';
+                                    
+                                    // Load iframe
+                                    iframe.onload = function() {
+                                        console.log('[QR Fetch] Iframe loaded, extracting QR...');
+                                        
+                                        setTimeout(function() {
+                                            try {
+                                                var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                                                var iframeQR = iframeDoc.querySelector('img[alt="QR Code"]');
+                                                
+                                                if (iframeQR && iframeQR.src) {
+                                                    console.log('[QR Fetch] QR data extracted successfully!');
+                                                    
+                                                    // Inject QR image into our UI
+                                                    qrImage.src = iframeQR.src;
+                                                    
+                                                    // Show beautiful UI
+                                                    loadingState.style.display = 'none';
+                                                    qrImage.style.display = 'block';
+                                                    timerSection.style.display = 'block';
+                                                    instructions.style.display = 'block';
+                                                    actions.style.display = 'flex';
+                                                    subtitle.textContent = 'Gunakan HP Anda untuk login otomatis';
+                                                    
+                                                    // Start countdown timer (90 seconds)
+                                                    startCountdown();
+                                                    
+                                                    // Start polling (copy from normal QR flow)
+                                                    startPolling();
+                                                } else {
+                                                    throw new Error('QR image not found in iframe');
+                                                }
+                                            } catch (e) {
+                                                console.error('[QR Fetch] Error:', e);
+                                                retryCount++;
+                                                
+                                                if (retryCount < maxRetries) {
+                                                    console.log('[QR Fetch] Retrying in 2s...');
+                                                    setTimeout(loadQRData, 2000);
+                                                } else {
+                                                    // Show error
+                                                    loadingState.style.display = 'none';
+                                                    errorState.style.display = 'block';
+                                                    subtitle.textContent = 'Gagal memuat QR Code';
+                                                }
+                                            }
+                                        }, 1000);
+                                    };
+                                    
+                                    iframe.src = currentUrl;
+                                }
+                                
+                                function startCountdown() {
+                                    var timeLeft = 90;
+                                    var timerText = document.getElementById('qr-timer-text-dynamic');
+                                    var progressCircle = document.getElementById('qr-progress-circle-dynamic');
+                                    var circumference = 220;
+                                    
+                                    if (countdownInterval) clearInterval(countdownInterval);
+                                    
+                                    countdownInterval = setInterval(function() {
+                                        timeLeft--;
+                                        timerText.textContent = timeLeft;
+                                        
+                                        var offset = (circumference * (90 - timeLeft)) / 90;
+                                        progressCircle.style.strokeDashoffset = offset;
+                                        
+                                        if (timeLeft <= 0) {
+                                            clearInterval(countdownInterval);
+                                            window.location.reload();
+                                        }
+                                    }, 1000);
+                                }
+                                
+                                function startPolling() {
+                                    // Copy polling logic from normal QR flow
+                                    var pollingInterval = setInterval(function() {
+                                        fetch(currentUrl, { method: 'GET', credentials: 'same-origin' })
+                                            .then(function(response) {
+                                                if (response.redirected || response.url !== currentUrl) {
+                                                    clearInterval(pollingInterval);
+                                                    window.location.href = response.url;
+                                                }
+                                            })
+                                            .catch(function(e) {
+                                                console.log('[QR Fetch] Polling error:', e);
+                                            });
+                                    }, 2000);
+                                }
+                                
+                                window.retryLoadQR = function() {
+                                    retryCount = 0;
+                                    loadQRData();
+                                };
+                                
+                                // Auto-load on page ready
+                                loadQRData();
+                            })();
+                            </script>
                         </#if>
                     </div>
                 </div>
@@ -271,11 +596,62 @@
         </div>
     </div>
     
-    <#-- WebAuthn Authentication Script -->
+    <#-- Tab Switching & WebAuthn Authentication Script -->
     <script>
-        // WebAuthn Authentication with Passkey
+        // ==========================================
+        // TAB SWITCHING FUNCTIONALITY
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all tab buttons
+            const tabCredential = document.getElementById('tab-credential');
+            const tabQr = document.getElementById('tab-qr');
+            const tabPasskey = document.getElementById('tab-passkey');
+            
+            // Add click event listeners
+            if (tabCredential) {
+                tabCredential.addEventListener('click', function() {
+                    switchToTab('credential');
+                });
+            }
+            
+            if (tabQr) {
+                tabQr.addEventListener('click', function() {
+                    switchToTab('qr');
+                });
+            }
+            
+            if (tabPasskey) {
+                tabPasskey.addEventListener('click', function() {
+                    switchToTab('passkey');
+                });
+            }
+        });
+        
+        // Function to switch tabs programmatically
+        function switchToTab(tabName) {
+            const tabs = {
+                'credential': {btn: document.getElementById('tab-credential'), form: document.getElementById('form-credential')},
+                'qr': {btn: document.getElementById('tab-qr'), form: document.getElementById('form-qr')},
+                'passkey': {btn: document.getElementById('tab-passkey'), form: document.getElementById('form-passkey')}
+            };
+            
+            // Remove all active states
+            Object.values(tabs).forEach(tab => {
+                if (tab.btn) tab.btn.classList.remove('active');
+                if (tab.form) tab.form.classList.add('hidden');
+            });
+            
+            // Activate selected tab
+            if (tabs[tabName]) {
+                if (tabs[tabName].btn) tabs[tabName].btn.classList.add('active');
+                if (tabs[tabName].form) tabs[tabName].form.classList.remove('hidden');
+            }
+        }
+        
+        // ==========================================
+        // WEBAUTHN / PASSKEY AUTHENTICATION
+        // ==========================================
         async function authenticateWithPasskey() {
-            // Check if WebAuthn is supported
             if (!window.PublicKeyCredential) {
                 alert('Browser Anda tidak mendukung Passkey. Gunakan Chrome, Edge, atau Safari versi terbaru.');
                 return;
@@ -287,13 +663,11 @@
             btn.innerHTML = '<i class="ph ph-spinner" style="animation: spin 1s linear infinite;"></i><span>Memproses...</span>';
             
             try {
-                // Check if platform authenticator is available
                 const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
                 
                 if (available) {
-                    // Trigger Windows Hello / Touch ID / Face ID
                     const publicKeyCredentialRequestOptions = {
-                        challenge: new Uint8Array(32), // In production, get from server
+                        challenge: new Uint8Array(32),
                         timeout: 60000,
                         userVerification: 'required'
                     };
@@ -302,7 +676,6 @@
                         publicKey: publicKeyCredentialRequestOptions
                     });
                     
-                    // Process credential and submit
                     if (credential) {
                         document.getElementById('credentialId').value = arrayBufferToBase64(credential.rawId);
                         document.getElementById('clientDataJSON').value = arrayBufferToBase64(credential.response.clientDataJSON);
@@ -336,27 +709,6 @@
                 binary += String.fromCharCode(bytes[i]);
             }
             return window.btoa(binary);
-        }
-        
-        // Function to switch tabs programmatically
-        function switchToTab(tabName) {
-            const tabs = {
-                'credential': {btn: document.getElementById('tab-credential'), form: document.getElementById('form-credential')},
-                'qr': {btn: document.getElementById('tab-qr'), form: document.getElementById('form-qr')},
-                'passkey': {btn: document.getElementById('tab-passkey'), form: document.getElementById('form-passkey')}
-            };
-            
-            // Remove all active states
-            Object.values(tabs).forEach(tab => {
-                tab.btn.classList.remove('active');
-                tab.form.classList.add('hidden');
-            });
-            
-            // Activate selected tab
-            if (tabs[tabName]) {
-                tabs[tabName].btn.classList.add('active');
-                tabs[tabName].form.classList.remove('hidden');
-            }
         }
     </script>
     

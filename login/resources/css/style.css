@@ -1777,26 +1777,26 @@ h3,
 /* QR Header */
 .qr-header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .qr-header-icon {
     display: block;
-    font-size: 3.5rem;
+    font-size: 2.5rem;
     color: #0ea5e9;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 
 .qr-title {
     font-family: 'Inter', sans-serif;
-    font-size: 1.4rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: #0f172a;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .qr-subtitle {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     color: #64748b;
     line-height: 1.5;
     margin: 0;
@@ -1806,27 +1806,27 @@ h3,
 .qr-code-wrapper {
     display: flex;
     justify-content: center;
-    margin: 30px 0;
+    margin: 20px 0;
 }
 
 .qr-code-container-main {
     background: white;
-    padding: 25px;
-    border-radius: 20px;
+    padding: 20px;
+    border-radius: 16px;
     border: 3px dashed #0ea5e9;
-    box-shadow: 0 10px 30px rgba(14, 165, 233, 0.15);
+    box-shadow: 0 8px 24px rgba(14, 165, 233, 0.12);
     position: relative;
     transition: all 0.3s ease;
 }
 
 .qr-code-container-main:hover {
     transform: scale(1.02);
-    box-shadow: 0 15px 40px rgba(14, 165, 233, 0.25);
+    box-shadow: 0 12px 32px rgba(14, 165, 233, 0.2);
 }
 
 .qr-code-img {
-    width: 260px;
-    height: 260px;
+    width: 240px;
+    height: 240px;
     display: block;
     animation: qrPulse 3s ease-in-out infinite;
 }
@@ -1993,12 +1993,12 @@ h3,
 /* Responsive QR Section */
 @media (max-width: 600px) {
     .qr-code-img {
-        width: 220px;
-        height: 220px;
+        width: 200px;
+        height: 200px;
     }
 
     .qr-code-container-main {
-        padding: 20px;
+        padding: 16px;
     }
 
     .qr-action-buttons {
@@ -2006,22 +2006,30 @@ h3,
     }
 
     .instruction-list {
-        font-size: 0.85rem;
+        font-size: 0.82rem;
+    }
+
+    .qr-header-icon {
+        font-size: 2rem;
+    }
+
+    .qr-title {
+        font-size: 1rem;
     }
 }
 
 @media (max-width: 400px) {
     .qr-code-img {
-        width: 200px;
-        height: 200px;
+        width: 180px;
+        height: 180px;
     }
 
     .qr-header-icon {
-        font-size: 2.5rem;
+        font-size: 1.8rem;
     }
 
     .qr-title {
-        font-size: 1.2rem;
+        font-size: 0.95rem;
     }
 }
 
