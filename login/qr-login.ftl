@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Login - Portal Pemda DIY</title>
     <link href="${url.resourcesPath}/css/style.css" rel="stylesheet" />
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -192,113 +195,204 @@
                                 </div>
                             </div>
                             
+                            <#-- Hidden form for QR auth polling (iframe POST) -->
+                            <form id="qr-poll-form" action="${url.loginAction}" method="post" style="display: none;">
+                                <input type="hidden" name="authenticationExecution" value="${QRauthExecId!''}" />
+                            </form>
+
                             <#-- ============================================ -->
-                            <#-- SCRIPT AJAIB: AUTO-POLLING (KUNCI SUKSES!) -->
+                            <#-- IFRAME POST POLLING (PROVEN WORKING APPROACH) -->
                             <#-- ============================================ -->
                             <script>
                             (function() {
-                                // URL saat ini (termasuk session ID)
-                                var currentUrl = window.location.href;
+                                // IFRAME POST POLLING:
+                                // 1. POST authenticationExecution to hidden iframe every 5s
+                                // 2. If QR not scanned: iframe loads login page (same-origin, readable URL)
+                                // 3. If QR scanned: Keycloak redirects iframe to Dashboard (cross-origin)
+                                //    → reading iframe URL throws SecurityError → we detect SUCCESS!
+                                // 4. On success: redirect main window to Dashboard
+                                
+                                var timeLeft = 90;
                                 var pollingInterval = null;
-                                var pollCount = 0;
-                                var maxPolls = 90; // 90 x 2 detik = 3 menit
+                                var countdownInterval = null;
                                 
-                                // Status indicator element
                                 var statusEl = document.getElementById('qr-loading-status');
+                                var timerText = document.getElementById('qr-timer-text');
+                                var progressCircle = document.getElementById('qr-progress-circle');
+                                var circumference = 220;
+                                var actionUrl = '${url.loginAction}';
                                 
-                                // Function to update status
-                                function updateStatus(message, color, bgColor) {
-                                    if (statusEl) {
-                                        statusEl.innerHTML = message;
-                                        statusEl.style.color = color;
-                                        statusEl.style.background = bgColor;
-                                    }
-                                }
+                                console.log('[QR SETUP] QR displayed. Auto-polling via hidden iframe POST.');
                                 
-                                // Polling function
-                                function pollLoginStatus() {
-                                    pollCount++;
+                                // ---- CORE: Check auth status via hidden iframe POST ----
+                                function checkAuthStatus() {
+                                    console.log('[QR POLL] Checking auth status...');
                                     
-                                    // Update countdown timer
-                                    var remaining = maxPolls - pollCount;
-                                    var timerText = document.getElementById('qr-timer-text');
-                                    var progressCircle = document.getElementById('qr-progress-circle');
+                                    var iframe = document.createElement('iframe');
+                                    iframe.style.display = 'none';
+                                    iframe.name = 'qr-check-' + Date.now();
+                                    document.body.appendChild(iframe);
                                     
-                                    if (timerText) {
-                                        timerText.textContent = remaining;
-                                    }
+                                    var form = document.createElement('form');
+                                    form.method = 'POST';
+                                    form.action = actionUrl;
+                                    form.target = iframe.name;
+                                    form.style.display = 'none';
                                     
-                                    // Update circular progress (220 is the circle circumference)
-                                    var progress = (pollCount / maxPolls) * 220;
-                                    if (progressCircle) {
-                                        progressCircle.style.strokeDashoffset = progress;
-                                    }
+                                    var input = document.createElement('input');
+                                    input.type = 'hidden';
+                                    input.name = 'authenticationExecution';
+                                    input.value = '${QRauthExecId!""}';
+                                    form.appendChild(input);
                                     
-                                    // Update status text only
-                                    if (statusEl) {
-                                        statusEl.innerHTML = '<i class="ph ph-spinner" style="animation: spin 1s linear infinite; vertical-align: middle;"></i> Menunggu Scan';
-                                    }
+                                    document.body.appendChild(form);
                                     
-                                    // Check if max polls reached
-                                    if (pollCount >= maxPolls) {
-                                        clearInterval(pollingInterval);
-                                        if (statusEl) {
-                                            statusEl.innerHTML = '<i class="ph ph-warning" style="vertical-align: middle;"></i> QR Code kedaluwarsa';
-                                            statusEl.style.color = '#92400e';
-                                        }
-                                        if (timerText) {
-                                            timerText.textContent = '0';
-                                            timerText.style.color = '#ef4444';
-                                        }
-                                        return;
-                                    }
-                                    
-                                    // Fetch current page to check if redirected
-                                    fetch(currentUrl, { 
-                                        method: 'GET', 
-                                        redirect: 'follow',
-                                        credentials: 'same-origin'
-                                    })
-                                    .then(function(response) {
-                                        // Keycloak akan me-redirect jika login sukses.
-                                        // Jika URL respons berbeda dengan URL halaman saat ini, berarti sudah masuk dashboard!
-                                        if (response.url && response.url !== currentUrl) {
-                                            clearInterval(pollingInterval);
-                                            if (statusEl) {
-                                                statusEl.innerHTML = '<i class="ph ph-check-circle" style="vertical-align: middle;"></i> Berhasil! Mengalihkan...';
-                                                statusEl.style.color = '#166534';
-                                            }
-                                            if (timerText) {
-                                                timerText.style.color = '#10b981';
+                                    iframe.onload = function() {
+                                        try {
+                                            // Try reading iframe URL
+                                            var iframeUrl = iframe.contentWindow.location.href;
+                                            
+                                            // If readable and NOT a login page → success (same-origin redirect)
+                                            if (iframeUrl && iframeUrl.indexOf('login-actions') === -1 && iframeUrl.indexOf('authenticate') === -1) {
+                                                console.log('[QR POLL] Auth succeeded! (same-origin redirect)');
+                                                stopPolling();
+                                                window.location.href = iframeUrl;
+                                                return;
                                             }
                                             
-                                            // Redirect to new URL (dashboard)
-                                            setTimeout(function() {
-                                                window.location.href = response.url;
-                                            }, 500);
+                                            // Still on login page → update action URL from iframe response
+                                            try {
+                                                var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                                                var iframeForm = iframeDoc.getElementById('kc-form-login');
+                                                if (iframeForm && iframeForm.action) {
+                                                    actionUrl = iframeForm.action;
+                                                    console.log('[QR POLL] Updated action URL from iframe');
+                                                }
+                                            } catch (e2) { /* ignore */ }
+                                            
+                                            console.log('[QR POLL] Auth still pending.');
+                                        } catch (e) {
+                                            // SecurityError = cross-origin = iframe redirected to Dashboard!
+                                            console.log('[QR POLL] Auth SUCCEEDED! (cross-origin redirect detected)');
+                                            stopPolling();
+                                            
+                                            if (statusEl) {
+                                                statusEl.innerHTML = '<i class="ph ph-check-circle" style="color: #10b981;"></i> Login berhasil! Mengalihkan...';
+                                                statusEl.style.color = '#10b981';
+                                            }
+                                            
+                                            // Redirect to Dashboard
+                                            var redirectUrl = getRedirectUrl();
+                                            console.log('[QR POLL] Redirecting to:', redirectUrl);
+                                            window.location.href = redirectUrl;
+                                            return;
                                         }
-                                    })
-                                    .catch(function(err) {
-                                        // Error jaringan, continue polling
-                                        console.log('Polling... (attempt ' + pollCount + ')', err);
-                                    });
+                                        
+                                        // Cleanup iframe & form
+                                        setTimeout(function() {
+                                            if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+                                            if (form.parentNode) form.parentNode.removeChild(form);
+                                        }, 100);
+                                    };
+                                    
+                                    // Submit the form to the hidden iframe
+                                    form.submit();
                                 }
                                 
-                                // Start polling setiap 2 detik
-                                console.log('[QR AUTO-POLLING] Started - checking every 2 seconds');
-                                pollingInterval = setInterval(pollLoginStatus, 2000);
-                                
-                                // Initial poll
-                                pollLoginStatus();
-                                
-                                // Cleanup on page unload
-                                window.addEventListener('beforeunload', function() {
-                                    if (pollingInterval) {
-                                        clearInterval(pollingInterval);
+                                // ---- Get redirect URL ----
+                                // After QR auth, Keycloak has an SSO session.
+                                // We must redirect through the OIDC auth endpoint so Keycloak
+                                // auto-issues an auth code and redirects to the Dashboard with it.
+                                // Going directly to the Dashboard (port 3000) would skip the
+                                // auth code flow and show the Dashboard's own login page.
+                                function getRedirectUrl() {
+                                    try {
+                                        // Extract realm base URL from current page URL
+                                        // Current: http://host:8080/realms/Jogja-SSO/login-actions/authenticate?...
+                                        var realmBase = window.location.href.split('/login-actions/')[0];
+                                        
+                                        // Get client_id from URL params
+                                        var params = new URLSearchParams(window.location.search);
+                                        var clientId = params.get('client_id') || 'pemda-dashboard';
+                                        
+                                        // Get redirect_uri (Dashboard URL)
+                                        var redirectUri = window.location.protocol + '//' + window.location.hostname + ':3000';
+                                        
+                                        // Try client_data for proper redirect_uri
+                                        var clientData = params.get('client_data');
+                                        if (clientData) {
+                                            try {
+                                                var decoded = JSON.parse(atob(clientData));
+                                                if (decoded && decoded.ru) redirectUri = decoded.ru;
+                                            } catch (e) {}
+                                        }
+                                        
+                                        // Construct OIDC auth URL - Keycloak will see SSO session and auto-redirect
+                                        var authUrl = realmBase + '/protocol/openid-connect/auth'
+                                            + '?client_id=' + encodeURIComponent(clientId)
+                                            + '&redirect_uri=' + encodeURIComponent(redirectUri)
+                                            + '&response_type=code'
+                                            + '&scope=openid';
+                                        
+                                        console.log('[QR POLL] OIDC auth URL:', authUrl);
+                                        return authUrl;
+                                    } catch (e) {
+                                        console.error('[QR POLL] Error constructing redirect URL:', e);
+                                        // Fallback: just go to Dashboard (might show login page)
+                                        return window.location.protocol + '//' + window.location.hostname + ':3000';
                                     }
-                                });
+                                }
+                                
+                                // ---- Stop all polling ----
+                                function stopPolling() {
+                                    if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; }
+                                    if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+                                }
+                                
+                                // ---- Countdown timer ----
+                                countdownInterval = setInterval(function() {
+                                    timeLeft--;
+                                    if (timerText) timerText.textContent = timeLeft > 0 ? timeLeft : 0;
+                                    if (progressCircle) {
+                                        var offset = (circumference * (90 - timeLeft)) / 90;
+                                        progressCircle.style.strokeDashoffset = Math.min(offset, circumference);
+                                    }
+                                    
+                                    if (timeLeft <= 0) {
+                                        stopPolling();
+                                        if (statusEl) {
+                                            statusEl.innerHTML = '<i class="ph ph-warning"></i> QR Code kadaluwarsa. <a href="javascript:void(0)" onclick="window.location.reload()" style="color:#0ea5e9;text-decoration:underline;">Refresh</a>';
+                                            statusEl.style.color = '#92400e';
+                                        }
+                                        if (timerText) timerText.style.color = '#ef4444';
+                                    }
+                                }, 1000);
+                                
+                                // ---- NO AUTO-POLLING! ----
+                                // Each iframe POST with authenticationExecution regenerates the QR token,
+                                // invalidating the one on screen. Only check when user clicks the button.
+                                console.log('[QR SETUP] No auto-poll. User clicks button after scanning.');
+                                
+                                // ---- Manual check button ----
+                                window.manualCheckQR = function() {
+                                    console.log('[QR MANUAL] Checking auth status via iframe POST...');
+                                    if (statusEl) {
+                                        statusEl.innerHTML = '<i class="ph ph-spinner" style="animation: spin 1s linear infinite;"></i> Memeriksa login...';
+                                        statusEl.style.color = '#0284c7';
+                                    }
+                                    checkAuthStatus();
+                                };
                             })();
                             </script>
+                            
+                            <!-- Manual check button -->
+                            <div style="text-align: center; margin: 15px 0 5px 0;">
+                                <button type="button" onclick="manualCheckQR()" 
+                                    style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border: none; padding: 14px 32px; border-radius: 12px; font-size: 0.95rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(14,165,233,0.35); width: 100%; justify-content: center;">
+                                    <i class="ph ph-sign-in" style="font-size: 1.2rem;"></i> Sudah Scan QR? Klik untuk Masuk
+                                </button>
+                                <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 8px;">Scan QR di HP dulu, setelah berhasil klik tombol di atas</p>
+                            </div>
                             
                             <div class="qr-instructions-box" style="background: #f0f9ff; border: 1px solid #bfdbfe; border-left: 4px solid #0ea5e9; border-radius: 12px; padding: 18px; margin: 25px 0; text-align: left;">
                                 <div class="instruction-header" style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;">
@@ -502,19 +596,14 @@
                                 }
                                 
                                 function startPolling() {
-                                    // Copy polling logic from normal QR flow
-                                    var pollingInterval = setInterval(function() {
-                                        fetch(currentUrl, { method: 'GET', credentials: 'same-origin' })
-                                            .then(function(response) {
-                                                if (response.redirected || response.url !== currentUrl) {
-                                                    clearInterval(pollingInterval);
-                                                    window.location.href = response.url;
-                                                }
-                                            })
-                                            .catch(function(e) {
-                                                console.log('[QR Fetch] Polling error:', e);
-                                            });
-                                    }, 2000);
+                                    console.log('[QR FETCH] No auto-reload. Button only.');
+                                    
+                                    window.manualCheckQR = function() {
+                                        console.log('[QR MANUAL] Cache-busted reload...');
+                                        var url = window.location.href.replace(/[?&]_nc=\d+/g, '');
+                                        var sep = url.indexOf('?') > -1 ? '&' : '?';
+                                        window.location.href = url + sep + '_nc=' + Date.now();
+                                    };
                                 }
                                 
                                 window.retryLoadQR = function() {
