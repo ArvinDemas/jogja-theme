@@ -181,25 +181,34 @@
     </#if>
     
     <script>
-        // Prevent multiple submissions
         document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('reset-password-form');
+            var form = document.getElementById('reset-password-form');
+            var submitBtn = document.getElementById('submit-btn');
+            var usernameInput = document.getElementById('username');
+
+            if (usernameInput && submitBtn) {
+                // Enable/disable button based on input value
+                function updateBtnState() {
+                    submitBtn.disabled = usernameInput.value.trim() === '';
+                }
+                usernameInput.addEventListener('input', updateBtnState);
+                // Run once on load (handles autofill and script.js global disable)
+                updateBtnState();
+            }
+
             if (form) {
                 form.addEventListener('submit', function(e) {
-                    const submitBtn = document.getElementById('submit-btn');
-                    const usernameInput = document.getElementById('username');
-                    
-                    // Validate username/email
-                    if (!usernameInput.value.trim()) {
+                    if (!usernameInput || !usernameInput.value.trim()) {
                         e.preventDefault();
                         alert('Silakan masukkan username atau email Anda');
-                        usernameInput.focus();
+                        if (usernameInput) usernameInput.focus();
                         return false;
                     }
-                    
-                    // Disable button and show loading
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<i class="ph ph-spinner" style="animation: spin 1s linear infinite;"></i> Mengirim...';
+                    // Disable button and show loading on submit
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="ph ph-spinner" style="animation: spin 1s linear infinite;"></i> Mengirim...';
+                    }
                 });
             }
         });

@@ -1,0 +1,1 @@
+${msg("emailOtpBodyPlainText", code, realmName)}

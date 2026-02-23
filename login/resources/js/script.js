@@ -4,28 +4,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. CAROUSEL & VISUAL (Slide Gambar)
     // ==========================================
     const slides = document.querySelectorAll('.carousel-slide');
-    const progressBar = document.querySelector('.progress-bar');
 
-    if (slides.length > 0 && progressBar) {
+    if (slides.length > 0) {
         let currentSlide = 0;
         const slideDuration = 5000;
-
-        function startProgress() {
-            progressBar.style.transition = 'none';
-            progressBar.style.width = '0%';
-            void progressBar.offsetWidth;
-            progressBar.style.transition = `width ${slideDuration}ms linear`;
-            progressBar.style.width = '100%';
-        }
 
         function showNextSlide() {
             slides[currentSlide].classList.remove('active');
             currentSlide = (currentSlide + 1) % slides.length;
             slides[currentSlide].classList.add('active');
-            startProgress();
         }
 
-        startProgress();
         setInterval(showNextSlide, slideDuration);
     }
 
