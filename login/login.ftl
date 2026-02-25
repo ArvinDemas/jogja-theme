@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Portal Pemda DIY</title>
-    <link href="${url.resourcesPath}/css/style.css" rel="stylesheet" />
+    <link href="${url.resourcesPath}/css/login.css" rel="stylesheet" />
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
@@ -682,6 +682,6 @@
         }
     </style>
     
-    <script src="${url.resourcesPath}/js/script.js"></script>
+    <script src="${url.resourcesPath}/js/login.js"></script>
 </body>
 </html>

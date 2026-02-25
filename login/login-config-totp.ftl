@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Setup Authenticator - Portal Pemda DIY</title>
     
-    <link href="${url.resourcesPath}/css/style.css" rel="stylesheet" />
+    <link href="${url.resourcesPath}/css/login.css" rel="stylesheet" />
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <#-- Tambahan CSS Khusus Halaman TOTP -->
@@ -18,17 +18,17 @@
         .tip-text h4 { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700; margin: 0 0 4px 0; color: #f8fafc; }
         .tip-text p { font-size: 0.85rem; color: #cbd5e1; margin: 0; line-height: 1.4; opacity: 0.8; font-family: 'Inter', sans-serif;}
 
-        .otp-step { margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px dashed #e2e8f0; }
+        .otp-step { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #e2e8f0; }
         .otp-step:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
-        .step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
-        .step-num { width: 28px; height: 28px; background: #0f172a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; }
-        .step-title { font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0; font-family: 'Inter', sans-serif; }
+        .step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .step-num { width: 28px; height: 28px; min-width: 28px; background: #0f172a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
+        .step-title { font-size: 0.95rem; font-weight: 700; color: #0f172a; margin: 0; font-family: 'Inter', sans-serif; }
         
         .app-badges { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
         .app-badge { display: flex; align-items: center; gap: 6px; background: #f1f5f9; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; color: #475569; font-weight: 600; }
         
-        .qr-wrapper { text-align: center; background: #fff; padding: 15px; border-radius: 15px; border: 2px dashed #0ea5e9; display: inline-block; margin: 10px 0; }
-        .qr-wrapper img { width: 160px; height: 160px; display: block; }
+        .qr-wrapper { text-align: center; background: #fff; padding: 10px; border-radius: 15px; border: 2px dashed #0ea5e9; display: inline-block; margin: 5px 0; }
+        .qr-wrapper img { width: 140px; height: 140px; display: block; }
         
         .secret-box { background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
         .secret-code { font-family: monospace; font-size: 1.1rem; color: #0f172a; font-weight: 700; letter-spacing: 2px; }
@@ -40,14 +40,14 @@
         /* OTP Input Boxes */
         .otp-boxes-container {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
-            margin: 20px 0;
+            margin: 10px 0;
         }
         
         .otp-box {
-            width: 50px;
-            height: 60px;
+            width: 45px;
+            height: 50px;
             border: 2px solid #cbd5e1;
             border-radius: 12px;
             text-align: center;
@@ -79,12 +79,12 @@
         .button-group {
             display: flex;
             gap: 12px;
-            margin-top: 20px;
+            margin-top: 12px;
         }
         
         .btn-secondary {
             flex: 1;
-            padding: 14px;
+            padding: 12px;
             background: white;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
@@ -159,10 +159,10 @@
         <div class="form-section">
             <div class="blob blob-1"></div><div class="blob blob-2"></div>
 
-            <div class="login-card fade-in" style="max-width: 500px;">
-                <div class="login-header">
-                    <h2>Setup Authenticator</h2>
-                    <p>Tingkatkan keamanan akun Anda dalam 3 langkah mudah.</p>
+            <div class="login-card fade-in" style="max-width: 500px; max-height: none; padding: 28px;">
+                <div class="login-header" style="margin-bottom: 15px;">
+                    <h2 style="font-size: 1.6rem; margin-bottom: 4px;">Setup Authenticator</h2>
+                    <p style="font-size: 0.85rem;">Tingkatkan keamanan akun Anda dalam 3 langkah mudah.</p>
                 </div>
 
                 <#-- Alert Error -->
@@ -240,10 +240,10 @@
                         <#if mode??><input type="hidden" id="mode" name="mode" value="${mode}"/></#if>
 
                         <#-- DEVICE NAME (OPTIONAL) -->
-                        <div class="form-group">
-                            <label class="form-label">Nama Perangkat (Opsional)</label>
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <label class="form-label" style="margin-bottom: 4px;">Nama Perangkat (Opsional)</label>
                             <div class="input-wrapper">
-                                <input type="text" class="form-input" id="userLabel" name="userLabel" autocomplete="off" placeholder="Contoh: iPhone Pribadi" value="${(totp.userLabel!'')}" />
+                                <input type="text" class="form-input" id="userLabel" name="userLabel" autocomplete="off" placeholder="Contoh: iPhone Pribadi" value="${(totp.userLabel!'')}" style="padding: 10px 45px;" />
                                 <i class="ph ph-device-mobile input-icon"></i>
                             </div>
                         </div>

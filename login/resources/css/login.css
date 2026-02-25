@@ -309,10 +309,11 @@ h3,
     flex: 1;
     background: #ffffff;
     display: flex;
-    align-items: center;
+    align-items: safe center;
     justify-content: center;
     position: relative;
     padding: 40px;
+    overflow-y: auto;
 }
 
 .blob {
