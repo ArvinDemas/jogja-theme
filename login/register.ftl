@@ -17,7 +17,7 @@
                 <div class="logo-box">
                     <img src="https://jogjaprov.go.id/storage/files/shares/page/1518066730_2d84b769e3cc9d6f06f8c91a6c3e285c.jpg" alt="Logo DIY">
                 </div>
-                <div class="brand-text"><h1>PEMDA DIY</h1><p>YOGYAKARTA</p></div>
+                <div class="brand-text"><h1>Pemerintah Daerah</h1><p>Daerah Istimewa Yogyakarta</p></div>
             </div>
             <div class="carousel-container">
                 <div class="security-tips-section">
